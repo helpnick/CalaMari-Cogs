@@ -48,24 +48,24 @@ class CrimeCommands:
             
             # Create embed
             embed = discord.Embed(
-                title="🌃 Welcome to the Criminal Underworld",
+                title="🌃 Добро пожаловать в преступный мир",
                 description=(
-                    "The city never sleeps, and neither do its criminals. What kind of trouble are you looking to get into today?\n\n"
-                    "Choose your next move wisely..."
+                    "Город никогда не спит, и его преступники тоже. В какие неприятности вы хотите попасть сегодня?\n\n"
+                    "Выбирайте свой следующий шаг с умом..."
                 ),
                 color=discord.Color.dark_red()
             )
             
             # Add criminal record field
             embed.add_field(
-                name="__Your Criminal Record__",
+                name="__Ваши преступления__",
                 value=(
-                    f"🦹 Current Status: {status}\n"
-                    f"💰 Lifetime Earnings: {humanize_number(member_data['total_credits_earned'])} {await bank.get_currency_name(ctx.guild)}\n"
-                    f"✅ Successful Crimes: {member_data['total_successful_crimes']}\n"
-                    f"❌ Failed Attempts: {member_data['total_failed_crimes']}\n"
-                    f"🏆 Largest Heist: {humanize_number(member_data['largest_heist'])} {await bank.get_currency_name(ctx.guild)}\n"
-                    f"📈 Current Streak: {streak_text}"
+                    f"🦹 Текущий статус: {status}\n"
+                    f"💰 Суммарный заработок: {humanize_number(member_data['total_credits_earned'])} {await bank.get_currency_name(ctx.guild)}\n"
+                    f"✅ Успешные преступления: {member_data['total_successful_crimes']}\n"
+                    f"❌ Неудачные попытки: {member_data['total_failed_crimes']}\n"
+                    f"🏆 Крупнейшее ограбление: {humanize_number(member_data['largest_heist'])} {await bank.get_currency_name(ctx.guild)}\n"
+                    f"📈 Текущая серия преступлений: {streak_text}"
                 ),
                 inline=False
             )
@@ -82,22 +82,22 @@ class CrimeCommands:
 
     @crime.command(name="commit")
     async def crime_commit(self, ctx: commands.Context):
-        """Choose a crime to commit using an interactive menu
+        """Выберите преступление, которое вы хотите совершить, с помощью интерактивного меню
         
-        Available crimes:
-        • 🧤 Pickpocket: Low risk, target users for small rewards
-        • 🔪 Mugging: Medium risk, target users for medium rewards
-        • 🏪 Store Robbery: Medium risk, no target needed
-        • 🏛 Bank Heist: High risk, high rewards
-        • 🎲 Random Crime: Random risk and rewards
+        Доступные преступления:
+        • 🧤 Карманник: Низкий риск, цель - пользователи за небольшое вознаграждение
+        • 🔪 Грабеж: Средний риск, цель - пользователи среднее вознаграждение
+        • 🏪 Ограбление магазина: Средний риск, цель не нужна
+        • 🏛 Ограбление банка: высокий риск, высокая награда
+        • 🎲 Случайные преступления: Случайный риск и вознаграждение
         
-        Each crime has:
-        • Color-coded risk levels (green=low, blue=medium, red=high)
-        • Success rates shown before committing
-        • Cooldown periods between attempts
-        • Fines and jail time if caught
+        Каждое преступление имеет:
+        • Цветовая маркировка уровней риска (зеленый=низкий, синий=средний, красный=высокий)
+        • Показатели удачи перед принятием решения
+        • Перезарядка между попытками
+        • Штрафы и тюремное заключение в случае поимки
         
-        Getting caught will send you to jail!
+          Если вас поймают, вы попадете в тюрьму!
         """
         try:
             # Get guild settings
@@ -119,14 +119,14 @@ class CrimeCommands:
             
             # Create embed with crime options
             embed = discord.Embed(
-                title="🦹‍♂️ Criminal Activities",
+                title="🦹‍♂️ Криминальная деятельность",
                 description=_(
-                    "Choose your next heist wisely...\n"
+                    "Выбирайте следующее ограбление с умом...\n"
                     "{jail_status}\n"
-                    "**Fines:**\n"
-                    "🟢 Low Risk: 30-35% of max reward\n"
-                    "🟡 Medium Risk: 40-45% of max reward\n"
-                    "🔴 High Risk: 45-50% of max reward\n\n"
+                    "**Преступления:**\n"
+                    "🟢 Низкий риск: 30-35% от максимального вознаграждения\n"
+                    "🟡 Средний риск: 40-45% от максимального вознаграждения\n"
+                    "🔴 Высокий риск: 45-50% от максимального вознаграждения\n\n"
                 ).format(
                     jail_status=jail_status + "\n" if jail_status else ""
                 ),
@@ -190,11 +190,11 @@ class CrimeCommands:
             await view.update_button_states()
             
         except Exception as e:
-            await ctx.send(_("An error occurred while setting up the crime options. Please try again. Error: {}").format(str(e)))
+            await ctx.send(_("При настройке параметров преступления произошла ошибка. Пожалуйста, попробуйте еще раз. Error: {}").format(str(e)))
 
     @crime.command(name="status")
     async def crime_status(self, ctx: commands.Context, user: discord.Member = None):
-        """View current jail status, cooldowns, and other active states
+        """Просматривайте текущий статус тюремного заключения, время перезарядки и другие активные состояния
         
         Parameters
         ----------
@@ -226,12 +226,12 @@ class CrimeCommands:
                 if has_reducer:
                     # Calculate original time (current time is after 20% reduction)
                     original_time = int(remaining_jail / 0.8)  # Reverse the 20% reduction
-                    jail_text = f"🔒 In jail for ~~{format_cooldown_time(original_time, include_emoji=False)}~~ → {format_cooldown_time(remaining_jail, include_emoji=False)} (-20%)"
+                    jail_text = f"🔒 В тюрьме на ~~{format_cooldown_time(original_time, include_emoji=False)}~~ → {format_cooldown_time(remaining_jail, include_emoji=False)} (-20%)"
                 else:
-                    jail_text = f"🔒 In jail for {format_cooldown_time(remaining_jail)}"
+                    jail_text = f"🔒 В тюрьме на {format_cooldown_time(remaining_jail)}"
                 
                 embed.add_field(
-                    name="⚖️ __Jail Status__",
+                    name="⚖️ __Статус заключения__",
                     value=jail_text,
                     inline=False
                 )
@@ -239,14 +239,14 @@ class CrimeCommands:
                 # Show if they've attempted jailbreak this sentence
                 if member_data.get("attempted_jailbreak", False):
                     embed.add_field(
-                        name="🔓 __Jailbreak Status__",
-                        value="❌ Already attempted this sentence",
+                        name="🔓 __Статус побега из тюрьмы__",
+                        value="❌ Уже пытался это сделать",
                         inline=False
                     )
             else:
                 embed.add_field(
-                    name="⚖️ __Jail Status__",
-                    value="🆓 Not in jail",
+                    name="⚖️ __Статус заключения__",
+                    value="🆓 Не в тюрьме",
                     inline=False
                 )
             
@@ -267,7 +267,7 @@ class CrimeCommands:
                 mid = len(cooldowns) // 2 + len(cooldowns) % 2
                 
                 embed.add_field(
-                    name="📅 __Crime Cooldowns__",
+                    name="📅 __Перезарядка преступлений__",
                     value="\n".join(cooldowns[:mid]),
                     inline=True
                 )
@@ -290,12 +290,12 @@ class CrimeCommands:
             if notify_unlocked or has_reducer:
                 status_lines = []
                 if notify_unlocked:
-                    status_lines.append("🔔 Notifications " + ("enabled" if notify_on_release else "disabled"))
+                    status_lines.append("🔔 Уведомления " + ("enabled" if notify_on_release else "disabled"))
                 if has_reducer:
-                    status_lines.append("⚖️ Reduced Sentence (-20% jail time)")
+                    status_lines.append("⚖️ Сокращение срока наказания (-20% jail time)")
                 
                 embed.add_field(
-                    name="🔰 __Active Perks__",
+                    name="🔰 __Активные привилегии__",
                     value="\n".join(status_lines),
                     inline=True
                 )
@@ -306,7 +306,7 @@ class CrimeCommands:
                     last_target = await ctx.guild.fetch_member(member_data['last_target'])
                     if last_target:
                         embed.add_field(
-                            name="🎯 __Last Target__",
+                            name="🎯 __Последняя цель__",
                             value=last_target.mention,
                             inline=True
                         )
@@ -316,7 +316,7 @@ class CrimeCommands:
             await ctx.send(embed=embed)
         
         except Exception as e:
-            await ctx.send(_("An error occurred while retrieving the status. Please try again. Error: {}").format(str(e)))
+            await ctx.send(_("При получении статуса произошла ошибка. Пожалуйста, попробуйте еще раз. Error: {}").format(str(e)))
             
     @crime.command(name="stats")
     async def crime_stats(self, ctx: commands.Context, user: discord.Member = None):
@@ -334,7 +334,7 @@ class CrimeCommands:
 
             # Create stats embed
             embed = discord.Embed(
-                title="📊 Criminal Statistics",
+                title="📊 Криминальная статистика",
                 description=f"Detailed statistics for {target.mention}",
                 color=await ctx.embed_color()
             )
@@ -363,13 +363,13 @@ class CrimeCommands:
             ]
             
             embed.add_field(
-                name="📊 __Crime Statistics__",
+                name="📊 __Криминальная статистика__",
                 value="\n".join(stats_left),
                 inline=True
             )
             
             embed.add_field(
-                name="💰 __Financial Impact__",
+                name="💰 __Финансовые последствия__",
                 value="\n".join(stats_right),
                 inline=True
             )
@@ -377,14 +377,14 @@ class CrimeCommands:
             await ctx.send(embed=embed)
         
         except Exception as e:
-            await ctx.send(_("An error occurred while retrieving the stats. Please try again. Error: {}").format(str(e)))
+            await ctx.send(_("При получении статуса произошла ошибка. Пожалуйста, попробуйте еще раз. Error: {}").format(str(e)))
 
     @crime.command(name="bail")
     async def crime_bail(self, ctx: commands.Context):
         """Pay bail to get out of jail early
         
-        Bail cost increases with remaining jail time.
-        Cost is calculated as: remaining_minutes * base_bail_rate
+        Стоимость залога увеличивается с оставшимся временем пребывания в тюрьме.
+        Стоимость рассчитывается как: оставшиеся_минуты * базовая_ставка_залога
         """
         try:
             # Check if user is in jail
@@ -405,7 +405,7 @@ class CrimeCommands:
             # Check if user can afford bail
             if not await bank.can_spend(ctx.author, bail_cost):
                 await ctx.send(
-                    _("💵❌You don't have enough {currency} to pay the bail amount of {amount}!").format(
+                    _("💵❌У вас недостаточно {currency} чтобы заплатить сумму залога {amount}!").format(
                         currency=await bank.get_currency_name(ctx.guild),
                         amount=bail_cost
                     )
@@ -421,9 +421,9 @@ class CrimeCommands:
             
             # Create embed for bail prompt
             embed = discord.Embed(
-                title="💰 Bail Payment Available",
+                title="💰 Возможность внесения залога",
                 description=(
-                    "You can pay bail to get out of jail immediately, or wait out your sentence.\n\n"
+                    "Вы можете внести залог, чтобы немедленно выйти из тюрьмы, или отбыть наказание.\n\n"
                     f"**Time Remaining:** {format_cooldown_time(jail_time, include_emoji=False)}"
                     + (" (Reduced by 20%)" if "jail_reducer" in member_data.get("purchased_perks", []) else "") + "\n"
                     f"**Bail Cost:** {bail_cost:,} {currency_name}\n"
@@ -444,13 +444,13 @@ class CrimeCommands:
                 member_data["attempted_jailbreak"] = False
                 
         except Exception as e:
-            await ctx.send(_("An error occurred while processing your bail request. Please try again. Error: {}").format(str(e)))
+            await ctx.send(_("При обработке вашего запроса на залог произошла ошибка. Пожалуйста, попробуйте еще раз. Error: {}").format(str(e)))
 
     @crime.command(name="jailbreak")
     async def crime_jailbreak(self, ctx: commands.Context):
-        """Attempt to break out of jail
+        """Попытка сбежать из тюрьмы
         
-        Failed attempt increases jail time by 30%!
+        Неудачная попытка увеличивает срок заключения на 30%!
         """
         try:
             # Check if user is in jail
@@ -533,12 +533,12 @@ class CrimeCommands:
                 
                 # Create success embed
                 embed = discord.Embed(
-                    title="🔓 Successful Jailbreak!",
+                    title="🔓 Успешный побег из тюрьмы!",
                     description=_(scenario['success_text']).format(user=ctx.author.mention),
                     color=discord.Color.green()
                 )
                 embed.add_field(
-                    name="🎲 Final Escape Chance",
+                    name="🎲 Последний шанс на побег",
                     value=f"{success_chance:.1%}",
                     inline=True
                 )
@@ -555,7 +555,7 @@ class CrimeCommands:
                 
                 # Create fail embed
                 embed = discord.Embed(
-                    title="⛓️ Failed Jailbreak!",
+                    title="⛓️ Неудачный побег из тюрьмы!",
                     description=_(scenario['fail_text']).format(user=ctx.author.mention),
                     color=discord.Color.red()
                 )
@@ -567,12 +567,12 @@ class CrimeCommands:
                 new_seconds = int((remaining_time * 1.3) % 60)
                 
                 embed.add_field(
-                    name="⚖️ Penalty",
-                    value=f"Your sentence has been increased by 30%!\n ({minutes}m {seconds}s + 30% = ⏰ {new_minutes}m {new_seconds}s)",
+                    name="⚖️ Штраф",
+                    value=f"Ваше наказание увеличено на 30 %!\n ({minutes}m {seconds}s + 30% = ⏰ {new_minutes}m {new_seconds}s)",
                     inline=True
                 )
                 embed.add_field(
-                    name="🎲 Final Escape Chance",
+                    name="🎲 Последний шанс на побег",
                     value=f"{success_chance:.1%}",
                     inline=True
                 )
@@ -591,32 +591,32 @@ class CrimeCommands:
         
         stats = {
             "earnings": {
-                "title": f"💰 __Most {currency_name} Earned__",
+                "title": f"💰 __Наибольшее количество заработанных {currency_name}__",
                 "field": "total_credits_earned",
                 "format": "credits"
             },
             "crimes": {
-                "title": "🦹 __Crime Success/Fails__",
+                "title": "🦹 __Успешные/неудачные преступления__",
                 "fields": ["total_successful_crimes", "total_failed_crimes"],
                 "format": "counts"
             },
             "stolen": {
-                "title": f"💎 __Stolen/Lost {currency_name}__",
+                "title": f"💎 __Украдено/Потерянно {currency_name}__",
                 "fields": ["total_stolen_from", "total_stolen_by"],
                 "format": "credits"
             },
             "largest_heist": {
-                "title": f"🏆 __Largest Heist__",
+                "title": f"🏆 __Самое крупное ограбление__",
                 "field": "largest_heist",
                 "format": "credits"
             },
             "fines": {
-                "title": f"💸 __Most Fines/Bail Paid__",
+                "title": f"💸 __Большинство штрафов/залогов оплачено__",
                 "fields": ["total_fines_paid", "total_bail_paid"],
                 "format": "credits"
             },
             "streaks": {
-                "title": "🔥 __Highest Crime Streak__",
+                "title": "🔥 __Самая высокая полоса преступлений__",
                 "field": "highest_streak",
                 "format": "number"
             }
@@ -628,7 +628,7 @@ class CrimeCommands:
             return await ctx.send("No crime statistics found for this server!")
 
         embed = discord.Embed(
-            title="🏆 Crime Leaderboard - Hall of Infamy",
+            title="🏆 Таблица лидеров преступности - Зал позора",
             description="The most notorious criminals in the server",
             color=await ctx.embed_color()
         )
@@ -747,7 +747,7 @@ class CrimeCommands:
         ):
         """Set the success rate for a crime type (0.0 to 1.0)"""
         if rate < 0 or rate > 1:
-            await ctx.send(_("Success rate must be between 0.0 and 1.0"))
+            await ctx.send(_("Показатель успешности должен составлять 0.0 и 1.0"))
             return
             
         async with self.config.guild(ctx.guild).crime_options() as crime_options:
@@ -766,7 +766,7 @@ class CrimeCommands:
     async def set_reward(
             self, ctx: commands.Context, crime_type: str, min_reward: int, max_reward: int
         ):
-        """Set the reward range for a crime type"""
+        """Установите диапазон вознаграждения для типа преступления"""
         if min_reward < 0 or max_reward < min_reward:
             await ctx.send(_("Invalid reward range!"))
             return
@@ -810,7 +810,7 @@ class CrimeCommands:
     async def set_jail_time(
             self, ctx: commands.Context, crime_type: str, jail_time: int
         ):
-        """Set the jail time for a crime type (in seconds)"""
+        """Установка времени тюремного заключения для типа преступления (в секундах)"""
         if jail_time < 0:
             await ctx.send(_("Jail time must be positive!"))
             return
@@ -822,7 +822,7 @@ class CrimeCommands:
                 
             crime_options[crime_type]["jail_time"] = jail_time
             
-        await ctx.send(_("Jail time for {crime_type} set to {time_remaining}").format(
+        await ctx.send(_("Тюремное заключение за {crime_type}  установленный на {time_remaining}").format(
             crime_type=crime_type,
             time_remaining=format_cooldown_time(jail_time)
         ))
@@ -831,7 +831,7 @@ class CrimeCommands:
     async def set_fine_multiplier(
             self, ctx: commands.Context, crime_type: str, multiplier: float
         ):
-        """Set the fine multiplier for a crime type"""
+        """Установка множителя штрафа для типа преступления"""
         if multiplier < 0:
             await ctx.send(_("Fine multiplier must be positive!"))
             return
@@ -843,7 +843,7 @@ class CrimeCommands:
                 
             crime_options[crime_type]["fine_multiplier"] = multiplier
             
-        await ctx.send(_("Fine multiplier for {crime_type} set to {multiplier}").format(
+        await ctx.send(_("Тонкий множитель для {crime_type} установленный на {multiplier}").format(
             crime_type=crime_type,
             multiplier=multiplier
         ))
@@ -851,10 +851,9 @@ class CrimeCommands:
     @crime_set.command(name="reload_defaults")
     @commands.admin_or_permissions(administrator=True)
     async def reload_crime_defaults(self, ctx: commands.Context):
-        """Reload the default crime settings for this guild.
-        
-        This will update all crime options to match the defaults in data.py.
-        Warning: This will overwrite any custom settings!
+        """Перезагрузите настройки преступлений по умолчанию для этой гильдии.
+        Это обновит все параметры преступлений, чтобы они соответствовали значениям по умолчанию в файле data.py.
+        Внимание: Это перезапишет все пользовательские настройки!!
         """
         from .data import CRIME_TYPES
         
@@ -868,9 +867,9 @@ class CrimeCommands:
         """Configure global crime settings
         
         Commands:
-        - bailcost: Set bail cost multiplier
-        - togglebail: Enable/disable the bail system
-        - view: View all current settings
+        - bailcost: Установить множитель стоимости залога
+        - togglebail: Включить/выключить систему залога
+        - view: Просмотр всех текущих настроек
         """
         pass
 
@@ -910,11 +909,11 @@ class CrimeCommands:
         
         # Build settings message
         settings_lines = [
-            _("🌐 **Global Settings**:"),
-            _("  • Bail System: {enabled}").format(enabled=_("Enabled") if global_settings["allow_bail"] else _("Disabled")),
-            _("  • Bail Cost Multiplier: {multiplier}").format(multiplier=global_settings["bail_cost_multiplier"]),
-            _("  • Min Steal Balance: {amount}").format(amount=global_settings["min_steal_balance"]),
-            _("  • Max Steal Amount: {amount}").format(amount=global_settings["max_steal_amount"]),
+            _("🌐 **Глобальные настройки**:"),
+            _("  • Система залога: {enabled}").format(enabled=_("Enabled") if global_settings["allow_bail"] else _("Disabled")),
+            _("  • Множитель стоимости залога: {multiplier}").format(multiplier=global_settings["bail_cost_multiplier"]),
+            _("  • Баланс мин. кражи: {amount}").format(amount=global_settings["min_steal_balance"]),
+            _("  • Максимальная сумма кражи: {amount}").format(amount=global_settings["max_steal_amount"]),
             "",
             _("🎯 **Crime Settings**:")
         ]
