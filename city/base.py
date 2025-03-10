@@ -189,7 +189,7 @@ class CityBase:
                 async with self.config.member(target).all() as target_data:
                     target_data["total_stolen_by"] += amount
                 
-                return amount, _("🎉 You successfully stole {amount:,} {currency} from {target}!").format(
+                return amount, _("🎉 Вы успешно украли {amount:,} {currency} у {target}!").format(
                     amount=amount,
                     target=target.mention,
                     currency=await bank.get_currency_name(target.guild)
@@ -205,14 +205,14 @@ class CityBase:
                 member_data["total_failed_crimes"] += 1
             
             if fine_paid:
-                return 0, _("💀 You were caught trying to steal from {target}! You paid a fine of {fine:,} {currency} and were sent to jail for {minutes}m!").format(
+                return 0, _("💀 Вас поймали при попытке украсть у {target}! Вы заплатили штраф в размере {fine:,} {currency} и были отправлены в тюрьму на {minutes}m!").format(
                     target=target.display_name,
                     fine=fine_amount,
                     minutes=crime_data["jail_time"] // 60,
                     currency=await bank.get_currency_name(target.guild)
                 )
             else:
-                return 0, _("💀 You were caught and couldn't pay the {fine:,} credit fine! You were sent to jail for {minutes}m!").format(
+                return 0, _("💀 Вас поймали, и вы не смогли заплатить штраф в размере {fine:,} кредитов! Вас посадили в тюрьму на {minutes}m!").format(
                     fine=fine_amount,
                     minutes=crime_data["jail_time"] // 60
                 )
