@@ -197,7 +197,7 @@ class InventoryView(discord.ui.View):
             discord.Embed: The created embed
         """
         embed = discord.Embed(
-            title="🎒 Your Inventory",
+            title="🎒 Ваш инвентарь",
             description="Select an item to activate or sell it.",
             color=discord.Color.blue()
         )
@@ -214,7 +214,7 @@ class InventoryView(discord.ui.View):
         
         if perks:
             embed.add_field(
-                name="__🔒 Permanent Perks__",
+                name="__🔒 Постоянные перки__",
                 value="\n".join(perks),
                 inline=False
             )
@@ -240,7 +240,7 @@ class InventoryView(discord.ui.View):
         
         if active_items:
             embed.add_field(
-                name="__📦 Active Items__",
+                name="__📦 Активные предметы__",
                 value="\n".join(active_items),
                 inline=False
             )
@@ -280,7 +280,7 @@ class InventoryView(discord.ui.View):
             item = self.item_registry[item_id]
         except (KeyError, AttributeError):
             await interaction.response.send_message(
-                "❌ This item no longer exists!",
+                "❌ Этот предмет больше не существует!",
                 ephemeral=True
             )
             return
@@ -289,7 +289,7 @@ class InventoryView(discord.ui.View):
         if item["type"] == "perk":
             if not item.get("toggleable", False):
                 await interaction.response.send_message(
-                    "❌ This perk cannot be toggled!",
+                    "❌ Этот перк нельзя переключить!",
                     ephemeral=True
                 )
                 return
@@ -303,13 +303,13 @@ class InventoryView(discord.ui.View):
                     self.member_data = member_data
                 
                 await interaction.response.send_message(
-                    f"🔔 Notifications are now {'enabled' if new_status else 'disabled'}",
+                    f"🔔 Уведомления {'enabled' if new_status else 'disabled'}",
                     ephemeral=True
                 )
                 await self._update_message()
             else:
                 await interaction.response.send_message(
-                    f"✨ Activated {item['emoji']} **{item['name']}**",
+                    f"✨ Активированно {item['emoji']} **{item['name']}**",
                     ephemeral=True
                 )
                 await self._update_message()
@@ -326,7 +326,7 @@ class InventoryView(discord.ui.View):
                     # Check if user is in jail
                     if not await self.cog.is_jailed(self.ctx.author):
                         await interaction.response.send_message(
-                            "❌ You're not in jail! Save your jail pass for when you need it.",
+                            "❌ Вы не в тюрьме! Сохраните свой пропуск в тюрьму на случай, если он вам понадобится.",
                             ephemeral=True
                         )
                         return
@@ -343,7 +343,7 @@ class InventoryView(discord.ui.View):
                     member_data["attempted_jailbreak"] = False  # Reset jailbreak attempt
                     
                     await interaction.response.send_message(
-                        "🔑 Used your Get Out of Jail Free card! You are now free.",
+                        "🔑 Использованна карта «Сбежать из тюрьмы»! Теперь вы свободны.",
                         ephemeral=True
                     )
                     
@@ -362,7 +362,7 @@ class InventoryView(discord.ui.View):
                             remaining = existing_end - current_time
                             time_str = format_time_remaining(remaining)
                             await interaction.response.send_message(
-                                f"❌ This item is already active for {time_str}!",
+                                f"❌ Этот предмет уже активен в течение {time_str}!",
                                 ephemeral=True
                             )
                             return
@@ -372,7 +372,7 @@ class InventoryView(discord.ui.View):
                     time_str = format_time_remaining(item["duration"])
                     
                     await interaction.response.send_message(
-                        f"✨ Activated {item['emoji']} **{item['name']}** for {time_str}",
+                        f"✨ Активированно {item['emoji']} **{item['name']}** for {time_str}",
                         ephemeral=True
                     )
                 # Handle use-based items
@@ -382,7 +382,7 @@ class InventoryView(discord.ui.View):
                         if "uses" in item:  # New item with default uses
                             member_data["active_items"][item_id] = {"uses": item["uses"]}
                             await interaction.response.send_message(
-                                f"✨ Added {item['emoji']} **{item['name']}** with {item['uses']} uses",
+                                f"✨ Добавленно {item['emoji']} **{item['name']}** with {item['uses']} uses",
                                 ephemeral=True
                             )
                             self.member_data = member_data
@@ -390,7 +390,7 @@ class InventoryView(discord.ui.View):
                             return
                         else:
                             await interaction.response.send_message(
-                                "❌ This item has no uses remaining!",
+                                "❌ У этого предмета не осталось применений!",
                                 ephemeral=True
                             )
                             return
@@ -402,7 +402,7 @@ class InventoryView(discord.ui.View):
                         member_data["active_items"][item_id]["uses"] = current_uses - 1
                 
                     await interaction.response.send_message(
-                        f"✨ Used {item['emoji']} **{item['name']}**" + 
+                        f"✨ Использованно {item['emoji']} **{item['name']}**" + 
                         (f" ({current_uses-1} uses remaining)" if current_uses > 1 else ""),
                         ephemeral=True
                     )
@@ -425,7 +425,7 @@ class InventoryView(discord.ui.View):
             item = self.item_registry[item_id]
         except (KeyError, AttributeError):
             await interaction.response.send_message(
-                "❌ This item no longer exists!",
+                "❌ Этот предмет больше не существует!",
                 ephemeral=True
             )
             return
@@ -456,7 +456,7 @@ class InventoryView(discord.ui.View):
             else:
                 if item_id not in member_data.get("active_items", {}):
                     await interaction.response.send_message(
-                        "❌ You no longer have this item!",
+                        "❌ У вас больше нет этого предмета!",
                         ephemeral=True
                     )
                     return
@@ -467,7 +467,7 @@ class InventoryView(discord.ui.View):
             self.member_data = member_data
             
             await interaction.response.send_message(
-                f"💰 Sold {item['emoji']} **{item['name']}** for {sell_price:,} {currency_name}",
+                f"💰 Продать {item['emoji']} **{item['name']}** for {sell_price:,} {currency_name}",
                 ephemeral=True
             )
             await self._update_message()
