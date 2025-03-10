@@ -9,7 +9,7 @@ from .crime import CrimeCommands
 from .crime.data import CRIME_TYPES, DEFAULT_GUILD, DEFAULT_MEMBER
 
 class City(CityBase, CrimeCommands, commands.Cog):
-    """A virtual city where you can commit crimes, work jobs, and more."""
+    """Виртуальный город, где вы можете совершать преступления, работать и многое другое."""
     
     def __init__(self, bot: Red) -> None:
         super().__init__(bot)
