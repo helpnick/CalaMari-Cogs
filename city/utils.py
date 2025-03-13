@@ -18,7 +18,7 @@ def format_cooldown_time(seconds: int, include_emoji: bool = True) -> str:
         Formatted string like "2h 30m" or "5m 30s"
     """
     if seconds <= 0:
-        return "✅" if include_emoji else "Ready"
+        return "✅" if include_emoji else "Готово"
         
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
