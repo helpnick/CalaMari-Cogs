@@ -1,33 +1,27 @@
-"""Random crime scenarios for the crime system."""
+"""Случайные сценарии преступлений для системы преступлений."""
 
 import random
 import discord
 from redbot.core import bank, commands, Config
 from typing import Union, List, Dict, Optional
 
-# Constants for risk levels and success rates
-RISK_LOW = "low"
-RISK_MEDIUM = "medium"
-RISK_HIGH = "high"
+# Константы для уровней риска и коэффициентов успеха
+RISK_LOW = "низкий"
+RISK_MEDIUM = "средний"
+RISK_HIGH = "высокий"
 
 SUCCESS_RATE_HIGH = 0.75
 SUCCESS_RATE_MEDIUM = 0.50
 SUCCESS_RATE_LOW = 0.30
 
 async def format_text(text: str, ctx: Union[commands.Context, discord.Interaction], **kwargs) -> str:
-    """Format text by replacing placeholders with actual values.
-    
-    Args:
-        text: Text containing placeholders
-        ctx: Either a Context or Interaction object
-        **kwargs: Additional format arguments (credits_bonus, credits_penalty)
-    """
+    """Форматирование текста путем замены заполнителей фактическими значениями. Аргументы: text: Текст, содержащий заполнители ctx: Объект Context или Interaction **kwargs: Дополнительные аргументы форматирования (credits_bonus, credits_penalty) """
     if hasattr(ctx, 'guild'):
-        # Context object
+        # Объект Context
         guild = ctx.guild
         user = ctx.user if hasattr(ctx, 'user') else ctx.author
     else:
-        # Interaction object
+        # Объект Interaction
         guild = ctx.guild
         user = ctx.user
         
@@ -37,44 +31,38 @@ async def format_text(text: str, ctx: Union[commands.Context, discord.Interactio
         'user': user.mention if "{user}" in text else user.display_name
     }
     
-    # Add any additional format arguments
+    # Добавление дополнительных аргументов форматирования
     format_args.update(kwargs)
     
     return text.format(**format_args)
 
 def get_crime_event(crime_type: str) -> list:
-    """Get a list of random events for a specific crime type.
-    Returns a list containing 1-3 events:
-    - First event is guaranteed
-    - Second event has 75% chance
-    - Third event has 50% chance
-    - Fourth event has 10% chance
-    """
+    """Получение списка случайных событий для определенного типа преступления. Возвращает список, содержащий 1-3 события: - Первое событие гарантированно - Второе событие имеет 75% шанс - Третье событие имеет 50% шанс - Четвертое событие имеет 10% шанс """
     if crime_type not in CRIME_EVENTS:
         return []
     
     events = []
     available_events = CRIME_EVENTS[crime_type].copy()
     
-    # First event is guaranteed
+    # Первое событие гарантированно
     if available_events:
         event = random.choice(available_events)
         events.append(event)
         available_events.remove(event)
     
-    # Second event has 75% chance
+    # Второе событие имеет 75% шанс
     if available_events and random.random() < 0.75:
         event = random.choice(available_events)
         events.append(event)
         available_events.remove(event)
     
-    # Third event has 50% chance
+    # Третье событие имеет 50% шанс
     if available_events and random.random() < 0.50:
         event = random.choice(available_events)
         events.append(event)
         available_events.remove(event)
 
-    # Fourth event has 10% chance
+    # Четвертое событие имеет 10% шанс
     if available_events and random.random() < 0.10:
         event = random.choice(available_events)
         events.append(event)
@@ -82,47 +70,31 @@ def get_crime_event(crime_type: str) -> list:
     return events
 
 async def get_all_scenarios(config: Config, guild: discord.Guild) -> List[Dict]:
-    """Get all available random scenarios.
-    
-    This includes both default scenarios and any custom scenarios added by the guild.
-    If custom_scenarios_only is enabled, only returns custom scenarios.
-    """
-    # Get default scenarios
+    """Получение всех доступных случайных сценариев. Это включает как стандартные сценарии, так и любые пользовательские сценарии, добавленные гильдией. Если включен режим custom_scenarios_only, возвращает только пользовательские сценарии. """
+    # Получение стандартных сценариев
     scenarios = RANDOM_SCENARIOS.copy()
     
-    # Get custom scenarios for this guild
+    # Получение пользовательских сценариев для этой гильдии
     custom_scenarios = await config.guild(guild).custom_scenarios()
     
-    # Add custom scenarios
+    # Добавление пользовательских сценариев
     scenarios.extend(custom_scenarios)
     
     return scenarios
 
 async def add_custom_scenario(config: Config, guild: discord.Guild, scenario: Dict) -> None:
-    """Add a custom scenario to the guild's config."""
+    """Добавление пользовательского сценария в конфигурацию гильдии."""
     async with config.guild(guild).custom_scenarios() as scenarios:
         scenarios.append(scenario)
 
 def get_random_scenario(scenarios: List[Dict]) -> Dict:
-    """Get a random scenario from the list."""
+    """Получение случайного сценария из списка."""
     return random.choice(scenarios)
 
 def get_random_jailbreak_scenario() -> Dict:
-    """Get a random prison break scenario.
-    
-    Returns:
-        Dict: A dictionary containing the scenario data with keys:
-        - name: Scenario identifier
-        - attempt_text: Text shown when attempting
-        - success_text: Text shown on success
-        - fail_text: Text shown on failure
-        - base_chance: Base success chance (0.0 to 1.0)
-        - events: List of possible random events that can affect success chance or rewards
-    """
+    """Получение случайного сценария побега из тюрьмы. Возвращает: Dict: Словарь, содержащий данные сценария с ключами: - name: Идентификатор сценария - attempt_text: Текст, отображаемый при попытке - success_text: Текст, отображаемый при успехе - fail_text: Текст, отображаемый при неудаче - base_chance: Базовый коэффициент успеха (0.0 до 1.0) - events: Список возможных случайных событий, которые могут повлиять на коэффициент успеха или награды """
     return random.choice(PRISON_BREAK_SCENARIOS)
-
-
-# Each scenario has:
+    # Each scenario has:
 # - name: Unique identifier for the scenario
 # - risk: Risk level (low, medium, high)
 # - min_reward: Minimum reward amount
@@ -133,247 +105,246 @@ def get_random_jailbreak_scenario() -> Dict:
 # - attempt_text: Message shown when attempting the crime
 # - success_text: Message shown on success
 # - fail_text: Message shown on failure
-
 RANDOM_SCENARIOS = [
     {
-        "name": "ice_cream_heist",
+        "name": "ограбление_магазина_мороженного",
         "risk": RISK_LOW,
         "min_reward": 100,
         "max_reward": 300,
         "success_rate": SUCCESS_RATE_HIGH,
-        "jail_time": 1800,  # 30 minutes (minimum)
+        "jail_time": 1800,  # 30 минут (минимум)
         "fine_multiplier": 0.3,
-        "attempt_text": "🍦 {user} sneaks into the ice cream shop after hours...",
-        "success_text": "🍦 {user} successfully raided the ice cream vault and made {amount} {currency}! Free ice cream for everyone!",
-        "fail_text": "🍦 {user} slipped on a banana split and got caught by the night guard!"
+        "attempt_text": "🍦 {user} пробирается в магазин мороженого после закрытия...",
+        "success_text": "🍦 {user} успешно ограбил хранилище мороженого и заработал {amount} {currency}! Бесплатное мороженое для всех!",
+        "fail_text": "🍦 {user} поскользнулся на банановом сплите и попался ночному охраннику!"
     },
     {
-        "name": "cat_burglar",
+        "name": "кошачий_грабитель",
         "risk": RISK_MEDIUM,
         "min_reward": 400,
         "max_reward": 800,
         "success_rate": SUCCESS_RATE_MEDIUM,
-        "jail_time": 3600,  # 60 minutes
+        "jail_time": 3600,  # 60 минут
         "fine_multiplier": 0.4,
-        "attempt_text": "🐱 {user} scales the mansion wall to steal the prized cat statue...",
-        "success_text": "🐱 {user} purrfectly executed the heist and stole the golden cat statue, earning {amount} {currency}!",
-        "fail_text": "🐱 {user} was caught when the real cats triggered the alarm system!"
+        "attempt_text": "🐱 {user} взбирается на стену особняка, чтобы украсть ценную статую кота...",
+        "success_text": "🐱 {user} совершил идеальное ограбление и украл золотую статую кота, заработав {amount} {currency}!",
+        "fail_text": "🐱 {user} попался, когда настоящие коты активировали сигнализацию!"
     },
     {
-        "name": "train_robbery",
+        "name": "ограбление_поезда",
         "risk": RISK_HIGH,
         "min_reward": 500,
         "max_reward": 2500,
         "success_rate": SUCCESS_RATE_LOW,
-        "jail_time": 7200,  # 120 minutes
+        "jail_time": 7200,  # 120 минут
         "fine_multiplier": 0.5,
-        "attempt_text": "🚂 {user} jumps onto the moving train carrying valuable cargo...",
-        "success_text": "🚂 {user} pulled off a classic train robbery and escaped with {amount} {currency}!",
-        "fail_text": "🚂 {user} got caught between train cars and was arrested at the next station!"
+        "attempt_text": "🚂 {user} прыгает на движущийся поезд с ценным грузом...",
+        "success_text": "🚂 {user} совершил классическое ограбление поезда и у逃了 с {amount} {currency}!",
+        "fail_text": "🚂 {user} застрял между вагонами поезда и был арестован на следующей станции!"
     },
     {
-        "name": "casino_con",
+        "name": "Казино_фест",
         "risk": RISK_HIGH,
         "min_reward": 800,
         "max_reward": 2500,
         "success_rate": SUCCESS_RATE_LOW,
-        "jail_time": 5400,  # 90 minutes
+        "jail_time": 5400,  # 90 минут
         "fine_multiplier": 0.45,
-        "attempt_text": "🎰 {user} approaches the casino with their master plan...",
-        "success_text": "🎰 {user} conned the casino and walked away with {amount} {currency}!",
-        "fail_text": "🎰 {user} was caught counting cards and was thrown out by security!"
+        "attempt_text": "🎰 {user} подходит к казино с их мастер-планом...",
+        "success_text": "🎰 {user} обманул казино и ушел с {amount} {currency}!",
+        "fail_text": "🎰 {user} был пойман за подсчетом карт и выдворен охраной!"
     },
     {
-        "name": "food_truck_heist",
+        "name": "ограбление_фудтрака",
         "risk": RISK_LOW,
         "min_reward": 200,
         "max_reward": 500,
         "success_rate": SUCCESS_RATE_HIGH,
-        "jail_time": 1800,  # 30 minutes (minimum)
+        "jail_time": 1800,  # 30 минут (минимум)
         "fine_multiplier": 0.35,
-        "attempt_text": "🚚 {user} sneaks up to the famous food truck at midnight...",
-        "success_text": "🚚 {user} stole the secret recipe and a truck full of tacos, making {amount} {currency}!",
-        "fail_text": "🚚 {user} was caught with their hands in the salsa jar!"
+        "attempt_text": "🚚 {user} подкрадывается к знаменитому фуд-траку в полночь...",
+        "success_text": "🚚 {user} украл секретный рецепт и грузовик с такосами, заработав {amount} {currency}!",
+        "fail_text": "🚚 {user} был пойман с руками в банке с сальсой!"
     },
     {
-        "name": "art_gallery_heist",
+        "name": "ограбление_галереи",
         "risk": RISK_HIGH,
         "min_reward": 900,
         "max_reward": 2800,
         "success_rate": SUCCESS_RATE_LOW,
-        "jail_time": 9000,  # 150 minutes
+        "jail_time": 9000,  # 150 минут
         "fine_multiplier": 0.48,
-        "attempt_text": "🎨 {user} infiltrates the art gallery during a fancy exhibition...",
-        "success_text": "🎨 {user} swapped the real painting with a forgery and sold it for {amount} {currency}!",
-        "fail_text": "🎨 {user} tripped the laser security system and got caught red-handed!"
+        "attempt_text": "🎨 {user} проникает в художественную галерею во время шикарной выставки...",
+        "success_text": "🎨 {user} обменял настоящую картину на подделку и продал её за {amount} {currency}!",
+        "fail_text": "🎨 {user} задел лазерную систему безопасности и был пойман с поличным!"
     },
     {
-        "name": "candy_store_raid",
+        "name": "рэйд_на_магазин_сладостей",
         "risk": RISK_LOW,
         "min_reward": 150,
         "max_reward": 400,
         "success_rate": SUCCESS_RATE_HIGH,
-        "jail_time": 1800,  # 30 minutes (minimum)
+        "jail_time": 1800,  # 30 минут (минимум)
         "fine_multiplier": 0.32,
-        "attempt_text": "🍬 {user} sneaks into the candy store with an empty backpack...",
-        "success_text": "🍬 {user} filled their bag with premium chocolates and rare candies, worth {amount} {currency}!",
-        "fail_text": "🍬 {user} got stuck in the gummy bear display and was caught by the owner!"
+        "attempt_text": "🍬 {user} пробирается в магазин сладостей с пустым рюкзаком...",
+        "success_text": "🍬 {user}  наполнили свою сумку премиальным шоколадом и редкими конфетами на {amount} {currency}!",
+        "fail_text": "🍬 {user}  застрял в витрине с жевательными мишками и был пойман владельцем!"
     },
     {
-        "name": "game_store_heist",
+        "name": "ограбление_игрового_магазина",
         "risk": RISK_MEDIUM,
         "min_reward": 500,
         "max_reward": 1200,
         "success_rate": SUCCESS_RATE_MEDIUM,
-        "jail_time": 4320,  # 72 minutes
+        "jail_time": 4320,  # 72 минуты
         "fine_multiplier": 0.42,
-        "attempt_text": "🎮 {user} attempts to break into the game store's storage room...",
-        "success_text": "🎮 {user} made off with a box of unreleased games and rare collectibles worth {amount} {currency}!",
-        "fail_text": "🎮 {user} got distracted playing the demo console and was caught by security!"
+        "attempt_text": "🎮 {user} пытается ворваться в склад игрового магазина...",
+        "success_text": "🎮 {user} унес ящик с не выпущенными играми и редкими коллекционными предметами на сумму {amount} {currency}!",
+        "fail_text": "🎮 {user} отвлёкся на игру на демонстрационной консоли и был пойман охраной!"
     },
     {
-        "name": "pet_shop_caper",
+        "name": "вор_питомцев",
         "risk": RISK_LOW,
         "min_reward": 180,
         "max_reward": 450,
         "success_rate": SUCCESS_RATE_HIGH,
-        "jail_time": 1800,  # 30 minutes (minimum)
+        "jail_time": 1800,  # 30 минут (минимум)
         "fine_multiplier": 0.33,
-        "attempt_text": "🐹 {user} sneaks into the pet shop with a suspicious large coat...",
-        "success_text": "🐹 {user} smuggled out the rare exotic pets and sold them to collectors for {amount} {currency}!",
-        "fail_text": "🐹 {user} got caught when all the puppies started barking at once!"
+        "attempt_text": "🐹 {user} пробирается в зоомагазин в подозрительно большом пальто...",
+        "success_text": "🐹 {user} вывез редких экзотических животных и продал их коллекционерам за {amount} {currency}!",
+        "fail_text": "🐹 {user} был пойман, когда все щенки начали лаять сразу!"
     },
     {
-        "name": "music_store_theft",
+        "name": "Ограбление_музыкального_магазина",
         "risk": RISK_MEDIUM,
         "min_reward": 600,
         "max_reward": 1500,
         "success_rate": SUCCESS_RATE_MEDIUM,
-        "jail_time": 3240,  # 54 minutes
+        "jail_time": 3240,  # 54 минуты
         "fine_multiplier": 0.43,
-        "attempt_text": "🎸 {user} picks the lock of the vintage music store...",
-        "success_text": "🎸 {user} stole a legendary signed guitar and some rare vinyl records worth {amount} {currency}!",
-        "fail_text": "🎸 {user} accidentally hit the wrong chord on an electric guitar and alerted everyone!"
+        "attempt_text": "🎸 {user} подбирает замок старинного музыкального магазина...",
+        "success_text": "🎸 {user} украл легендарную гитару с автографом и редкие виниловые пластинки на сумму {amount} {currency}!",
+        "fail_text": "🎸 {user} случайно задел струну на электрогитаре и привлек внимание всех!"
     },
     {
-        "name": "jewelry_store_heist",
+        "name": "Ограбление_ювелирного_магазина",
         "risk": RISK_HIGH,
         "min_reward": 1000,
         "max_reward": 2500,
         "success_rate": SUCCESS_RATE_LOW,
-        "jail_time": 10800,  # 180 minutes
+        "jail_time": 10800,  # 180 минут
         "fine_multiplier": 0.49,
-        "attempt_text": "💎 {user} carefully approaches the high-end jewelry store...",
-        "success_text": "💎 {user} cracked the safe and made off with precious gems worth {amount} {currency}!",
-        "fail_text": "💎 {user} got tangled in the laser security grid and was caught!"
+        "attempt_text": "💎 {user} осторожно подходит к элитному ювелирному магазину...",
+        "success_text": "💎 {user} открыл сейф и унес дорогие драгоценные камни на сумму {amount} {currency}!",
+        "fail_text": "💎 {user} запутался в лазерной системе безопасности и был пойман!"
     },
     {
-        "name": "antique_shop_raid",
+        "name": "Ограбление_магазина_антиквариата",
         "risk": RISK_MEDIUM,
         "min_reward": 400,
         "max_reward": 1100,
         "success_rate": SUCCESS_RATE_MEDIUM,
-        "jail_time": 2880,  # 48 minutes
+        "jail_time": 2880,  # 48 минут
         "fine_multiplier": 0.41,
-        "attempt_text": "🏺 {user} sneaks into the antique shop with fake credentials...",
-        "success_text": "🏺 {user} swapped priceless artifacts with clever replicas and made {amount} {currency}!",
-        "fail_text": "🏺 {user} knocked over a Ming vase and alerted the owner!"
+        "attempt_text": "🏺 {user} пробирается в антикварный магазин с поддельными документами...",
+        "success_text": "🏺 {user} обменял бесценные артефакты на умные реплики и заработал {amount} {currency}!",
+        "fail_text": "🏺 {user} опрокинул вазу периода Мин и привлек внимание владельца!"
     },
     {
-        "name": "tech_store_hack",
+        "name": "взлом_завода_по_производству_электроники",
         "risk": RISK_MEDIUM,
         "min_reward": 700,
         "max_reward": 1800,
         "success_rate": SUCCESS_RATE_MEDIUM,
-        "jail_time": 3960,  # 66 minutes
+        "jail_time": 3960,  # 66 минут
         "fine_multiplier": 0.44,
-        "attempt_text": "💻 {user} tries to hack into the tech store's security...",
-        "success_text": "💻 {user} downloaded the unreleased gadget blueprints and sold them for {amount} {currency}!",
-        "fail_text": "💻 {user} triggered the firewall and got IP traced!"
+        "attempt_text": "💻 {user} пытается взломать систему безопасности завода по производсту электроники...",
+        "success_text": "💻 {user} скачал чертежи не выпущенных гаджетов и продал их за {amount} {currency}!",
+        "fail_text": "💻 {user} сработал межсетевой экран и был идентифицирован по IP!"
     },
     {
-        "name": "bakery_burglary",
+        "name": "ограбление_пекарни",
         "risk": RISK_LOW,
         "min_reward": 120,
         "max_reward": 350,
         "success_rate": SUCCESS_RATE_HIGH,
-        "jail_time": 1800,  # 30 minutes (minimum)
+        "jail_time": 1800,  # 30 минут (минимум)
         "fine_multiplier": 0.31,
-        "attempt_text": "🥖 {user} climbs through the bakery's back window...",
-        "success_text": "🥖 {user} stole the secret recipe book and rare ingredients worth {amount} {currency}!",
-        "fail_text": "🥖 {user} got caught with their hand in the cookie jar... literally!"
+        "attempt_text": "🥖 {user} пролезает через заднее окно булочной...",
+        "success_text": "🥖 {user} украл книгу секретных рецептов и редкие ингредиенты на сумму {amount} {currency}!",
+        "fail_text": "🥖 {user} попался, когда уронил пирог с вишней!"
     },
     {
-        "name": "toy_store_takedown",
+        "name": "воровство_игрушек",
         "risk": RISK_LOW,
         "min_reward": 160,
         "max_reward": 420,
         "success_rate": SUCCESS_RATE_HIGH,
-        "jail_time": 1800,  # 30 minutes (minimum)
+        "jail_time": 1800,  # 30 минут (минимум)
         "fine_multiplier": 0.33,
-        "attempt_text": "🧸 {user} sneaks into the toy store after hours...",
-        "success_text": "🧸 {user} nabbed a box of limited edition collectibles worth {amount} {currency}!",
-        "fail_text": "🧸 {user} stepped on a squeaky toy and woke up the guard dog!"
+        "attempt_text": "🧸 {user} проникает в магазин игрушек после закрытия...",
+        "success_text": "🧸 {user} ухватил коробку лимитированных коллекционных предметов на сумму {amount} {currency}!",
+        "fail_text": "🧸 {user} наступил на шипучую игрушку и разбудил сторожевую собаку!"
     },
     {
-        "name": "strip_club_scam",
+        "name": "обман_клиентов_стрипклуба",
         "risk": RISK_MEDIUM,
         "min_reward": 600,
         "max_reward": 1600,
         "success_rate": SUCCESS_RATE_MEDIUM,
-        "jail_time": 3600,  # 60 minutes
+        "jail_time": 3600,  # 60 минут
         "fine_multiplier": 0.43,
-        "attempt_text": "💃 {user} infiltrates the gentleman's club with counterfeit VIP cards...",
-        "success_text": "💃 {user} successfully scammed the thirsty clientele with watered-down drinks, making {amount} {currency}!",
-        "fail_text": "💃 {user} got caught by the bouncer and thrown into the dumpster!"
+        "attempt_text": "💃 {user} проникает в клуб для джентльменов с поддельными VIP-картами...",
+        "success_text": "💃 {user} успешно обманул жаждущих клиентов, продавая разбавленные напитки, заработав {amount} {currency}!",
+        "fail_text": "💃 {user} был пойман швейцером и выброшен в мусорный контейнер!"
     },
     {
-        "name": "onlyfans_hack",
+        "name": "взлом_onlyfans",
         "risk": RISK_MEDIUM,
         "min_reward": 500,
         "max_reward": 1400,
         "success_rate": SUCCESS_RATE_MEDIUM,
-        "jail_time": 3240,  # 54 minutes
+        "jail_time": 3240,  # 54 минуты
         "fine_multiplier": 0.42,
-        "attempt_text": "📱 {user} tries to hack into OnlyFans...",
-        "success_text": "📱 {user} leaked the premium content and made {amount} {currency} from the downloads!",
-        "fail_text": "📱 {user} got reported by angry subscribers and got IP banned!"
+        "attempt_text": "📱 {user} пытается взломать OnlyFans...",
+        "success_text": "📱 {user} слил премиум-контент и заработал {amount} {currency} с загрузок!",
+        "fail_text": "📱 {user} был заблокирован из-за жалоб от разъярённых подписчиков!"
     },
     {
-        "name": "adult_store_heist",
+        "name": "ограбление_18+_магазина",
         "risk": RISK_LOW,
         "min_reward": 200,
         "max_reward": 600,
         "success_rate": SUCCESS_RATE_HIGH,
-        "jail_time": 1800,  # 30 minutes (minimum)
+        "jail_time": 1800,  # 30 минут (минимум)
         "fine_multiplier": 0.33,
-        "attempt_text": "🎭 {user} sneaks into the adult novelty shop...",
-        "success_text": "🎭 {user} made off with a box of 'battery-operated devices' worth {amount} {currency}!",
-        "fail_text": "🎭 {user} tripped over inflatable merchandise and got caught!"
+        "attempt_text": "🎭 {user} проникает в магазин для взрослых...",
+        "success_text": "🎭 {user} унес с собой коробку 'аккумуляторных устройств' на сумму {amount} {currency}!",
+        "fail_text": "🎭 {user} споткнулся о надувные товары и был пойман!"
     },
     {
-        "name": "sugar_daddy_scam",
+        "name": "фэйковый_профиль_в_соцсетях",
         "risk": RISK_HIGH,
         "min_reward": 800,
         "max_reward": 2000,
         "success_rate": SUCCESS_RATE_LOW,
-        "jail_time": 5400,  # 90 minutes
+        "jail_time": 5400,  # 90 минут
         "fine_multiplier": 0.47,
-        "attempt_text": "🍯 {user} sets up a fake sugar baby profile...",
-        "success_text": "🍯 {user} successfully catfished some lonely millionaires for {amount} {currency}!",
-        "fail_text": "🍯 {user} got exposed by a private investigator!"
+        "attempt_text": "🍯 {user} создает фейковый профиль молодой малышки...",
+        "success_text": "🍯 {user} успешно обманул нескольких одиноких миллионеров на {amount} {currency}!",
+        "fail_text": "🍯 {user} был раскрыт частным детективом!"
     },
     {
-        "name": "dating_app_fraud",
+        "name": "мошенничество_в_приложении_знакомств",
         "risk": RISK_MEDIUM,
         "min_reward": 400,
         "max_reward": 1200,
         "success_rate": SUCCESS_RATE_MEDIUM,
-        "jail_time": 2880,  # 48 minutes
+        "jail_time": 2880,  # 48 минут
         "fine_multiplier": 0.41,
-        "attempt_text": "💕 {user} creates fake dating profiles with stolen photos...",
-        "success_text": "💕 {user} successfully ran a romance scam on multiple victims, earning {amount} {currency}!",
-        "fail_text": "💕 {user} got caught when all the victims showed up at once!"
+        "attempt_text": "💕 {user} создает фейковые профили знакомств с украденными фотографиями...",
+        "success_text": "💕 {user} успешно провел романтическое мошенничество, заработав {amount} {currency}!",
+        "fail_text": "💕 {user} был пойман, когда все жертвы одновременно пришли на встречу!"
     },
     {
         "name": "crypto_rug_pull",
@@ -1051,300 +1022,302 @@ CRIME_EVENTS = {
 
 
 
-# Prison break scenarios
+# Сценарии побега из тюрьмы
 PRISON_BREAK_SCENARIOS = [
     {
-        "name": "Tunnel Escape",
-        "attempt_text": "🕳️ {user} begins digging a tunnel under their cell...",
-        "success_text": "🕳️ After days of digging, {user} finally breaks through to freedom! The guards are still scratching their heads.",
-        "fail_text": "🕳️ The tunnel collapsed! Guards found {user} covered in dirt and moved them to a cell with a concrete floor.",
+        "name": "Побег через туннель",
+        "attempt_text": "🕳 {user} начинает рыть туннель под своей камерой...",
+        "success_text": "🕳 После нескольких дней копания, {user} наконец прорывается к свободе! Охранники до сих пор чешут затылки.",
+        "fail_text": "🕳 Туннель обрушился! Охрана нашла {user}, покрытого грязью, и перевела его в камеру с бетонным полом.",
         "base_chance": 0.35,
         "events": [
-            {"text": "⭐ You found some old tools left by another prisoner! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ The soil is unusually soft here! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ You found a small pouch of {currency}!", "currency_bonus": 200},
-            {"text": "⭐ You discovered an old prohibition tunnel! (+25% success chance)", "chance_bonus": 0.25},
-            {"text": "⭐ A friendly prison rat is helping you dig! (+5% success chance)", "chance_bonus": 0.05},
-            {"text": "⭐ You found a treasure chest!", "currency_bonus": 400},
-            {"text": "⚠️ You hit solid rock! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ A guard patrol is coming! (-10% success chance)", "chance_penalty": 0.10},
-            {"text": "⚠️ Your shovel broke and you had to buy a new one.", "currency_penalty": 150},
-            {"text": "⚠️ The tunnel flooded! (-20% success chance)", "chance_penalty": 0.20},
-            {"text": "⚠️ Your cellmate is snoring loudly, slowing progress! (-5% success chance)", "chance_penalty": 0.05},
-            {"text": "⚠️ Had to bribe the prison geologist.", "currency_penalty": 300}
+            {"text": "⭐️ Вы нашли старые инструменты, оставленные другим заключённым! (+15% шанс успеха)", "chance_bonus": 0.15},
+            {"text": "⭐️ Почва здесь необычно мягкая! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Вы нашли небольшой мешочек с {currency}!", "currency_bonus": 200},
+            {"text": "⭐️ Вы обнаружили старый туннель времён сухого закона! (+25% шанс успеха)", "chance_bonus": 0.25},
+            {"text": "⭐️ Дружелюбная тюремная крыса помогает вам копать! (+5% шанс успеха)", "chance_bonus": 0.05},
+            {"text": "⭐️ Вы нашли сундук с сокровищами!", "currency_bonus": 400},
+            {"text": "⚠️ Вы натолкнулись на твёрдую скалу! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Патруль охраны приближается! (-10% шанс успеха)", "chance_penalty": 0.10},
+            {"text": "⚠️ Ваша лопата сломалась, и вам пришлось купить новую.", "currency_penalty": 150},
+            {"text": "⚠️ Туннель затопило! (-20% шанс успеха)", "chance_penalty": 0.20},
+            {"text": "⚠️ Ваш сокамерник громко храпит, замедляя прогресс! (-5% шанс успеха)", "chance_penalty": 0.05},
+            {"text": "⚠️ Пришлось подкупить тюремного геолога.", "currency_penalty": 300}
         ]
     },
     {
-        "name": "Prison Riot",
-        "attempt_text": "🚨 {user} starts a prison riot as a distraction...",
-        "success_text": "🚨 In the chaos of the riot, {user} slips away unnoticed! Freedom at last!",
-        "fail_text": "🚨 The riot was quickly contained. {user} was identified as the instigator and sent to solitary.",
+        "name": "Тюремный бунт",
+        "attempt_text": "🚨 {user} устраивает тюремный бунт как отвлечение...",
+        "success_text": "🚨 В хаосе бунта {user} незаметно сбегает! Свобода, наконец-то!",
+        "fail_text": "🚨 Бунт быстро подавили. {user} был идентифицирован как подстрекатель и отправлен в одиночную камеру.",
         "base_chance": 0.35,
         "events": [
-            {"text": "⭐ Other prisoners join your cause! (+20% success chance)", "chance_bonus": 0.20},
-            {"text": "⭐ You found a guard's keycard! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ You looted the commissary during the chaos!", "currency_bonus": 300},
-            {"text": "⭐ The prison's WiFi went down - guards are distracted! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ Someone released all the therapy dogs! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ Found the warden's secret stash!", "currency_bonus": 500},
-            {"text": "⚠️ The guards were prepared! (-20% success chance)", "chance_penalty": 0.20},
-            {"text": "⚠️ Security cameras caught your plan! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ You had to bribe another prisoner to keep quiet.", "currency_penalty": 250},
-            {"text": "⚠️ The SWAT team arrived! (-25% success chance)", "chance_penalty": 0.25},
-            {"text": "⚠️ Your riot chant was too cringe! (-10% success chance)", "chance_penalty": 0.10},
-            {"text": "⚠️ Had to replace broken furniture.", "currency_penalty": 350}
+            {"text": "⭐️ Другие заключённые присоединились к вашему делу! (+20% шанс успеха)", "chance_bonus": 0.20},
+            {"text": "⭐️ Вы нашли ключ-карту охранника! (+15% шанс успеха)", "chance_bonus": 0.15},
+            {"text": "⭐️ Вы разграбили комендатуру во время хаоса!", "currency_bonus": 300},
+            {"text": "⭐️ Wi-Fi в тюрьме отключён - охрана отвлеклась! (+15% шанс успеха)", "chance_bonus": 0.15},
+            {"text": "⭐️ Кто-то выпустил всех терапевтических собак! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Нашли тайное хранилище начальника тюрьмы!", "currency_bonus": 500},
+            {"text": "⚠️ Охрана была готова! (-20% шанс успеха)", "chance_penalty": 0.20},
+            {"text": "⚠️ Камеры видеонаблюдения поймали ваш план! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Вам пришлось подкупить другого заключённого, чтобы он молчал.", "currency_penalty": 250},
+            {"text": "⚠️ Прибыл отряд спецназа! (-25% шанс успеха)", "chance_penalty": 0.25},
+            {"text": "⚠️ Ваш лозунг бунта оказался слишком неуклюжим! (-10% шанс успеха)", "chance_penalty": 0.10},
+            {"text": "⚠️ Пришлось заменить сломанную мебель.", "currency_penalty": 350}
         ]
     },
     {
-        "name": "Guard Disguise",
-        "attempt_text": "🕶 {user} puts on a stolen guard uniform...",
-        "success_text": "🕶 Nobody questioned {user} as they walked right out the front door! The perfect disguise!",
-        "fail_text": "🕶 The uniform was from last season's collection. {user} was spotted immediately by the fashion-conscious guards.",
+        "name": "Маскировка под охрану",
+        "attempt_text": "🕶 {user} надевает украденную форму охранника...",
+        "success_text": "🕶 Никто не заподозрил {user}, когда тот спокойно вышел через главный вход! Идеальная маскировка!",
+        "fail_text": "🕶 Форма оказалась из коллекции прошлого сезона. {user} сразу же заметили охранники, следящие за модой.",
         "base_chance": 0.35,
         "events": [
-            {"text": "⭐ Shift change creates confusion! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ You memorized the guard patterns! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ You found {currency} in the uniform pocket!", "currency_bonus": 250},
-            {"text": "⭐ It's casual Friday - perfect timing! (+20% success chance)", "chance_bonus": 0.20},
-            {"text": "⭐ Found the guard's secret handshake manual! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ Discovered the guard's poker winnings!", "currency_bonus": 450},
-            {"text": "⚠️ Your shoes don't match the uniform! (-10% success chance)", "chance_penalty": 0.10},
-            {"text": "⚠️ A guard recognizes you! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ You had to pay another inmate for the uniform.", "currency_penalty": 200},
-            {"text": "⚠️ Your badge is upside down! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ You forgot the guard's catchphrase! (-10% success chance)", "chance_penalty": 0.10},
-            {"text": "⚠️ Had to buy authentic guard boots.", "currency_penalty": 275}
+            {"text": "⭐️ Смена смены создаёт путаницу! (+15% шанс успеха)", "chance_bonus": 0.15},
+            {"text": "⭐️ Вы запомнили график патрулей охраны! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Вы нашли {currency} в кармане формы!", "currency_bonus": 250},
+            {"text": "⭐️ Сегодня пятница - идеальное время! (+20% шанс успеха)", "chance_bonus": 0.20},
+            {"text": "⭐️ Вы нашли секретный справочник приветствий охранников! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Обнаружены выигрыши охранника в покер!", "currency_bonus": 450},
+            {"text": "⚠️ Ваши туфли не подходят к форме! (-10% шанс успеха)", "chance_penalty": 0.10},
+            {"text": "⚠️ Один из охранников узнал вас! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Вам пришлось заплатить другому заключенному за форму.", "currency_penalty": 200},
+            {"text": "⚠️ Ваш значок перевернут вверх ногами! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Вы забыли пароль охранника! (-10% шанс успеха)", "chance_penalty": 0.10},
+            {"text": "⚠️ Пришлось купить настоящие ботинки охранника.", "currency_penalty": 275}
+        ]   
+    },
+    {
+        "name": "Побег в тележке с едой",
+        "attempt_text": "🍽 {user} пытается спрятаться в кухонной тележке с доставкой еды...",
+        "success_text": "🍽 Закопавшись под гору загадочного мяса, {user} был вывезен прямо в грузовик доставки. Мясо было ужасным, но свобода сладка!",
+        "fail_text": "🍽 Возвращение отправителю! {user} забыл поставить достаточно марок на себя. У почтовой службы строгая политика в отношении отправки заключенных.",
+        "base_chance": 0.35,
+        "events": [
+            {"text": "⭐️ Сейчас праздничный сезон! (+20% шанс успеха)", "chance_bonus": 0.20},
+            {"text": "⭐️ Вы нашли идеально подходящий ящик! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Вы обнаружили неотправленные денежные переводы на сумму {currency}!", "currency_bonus": 275},
+            {"text": "⭐️ Визит санитарного инспектора - все отвлечены! (+15% шанс успеха)", "chance_bonus": 0.15},
+            {"text": "⭐️ Повар находится в состоянии нервного срыва! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Найдены советы от кулинарного курса!", "currency_bonus": 350},
+            {"text": "⚠️ Проверка посылок идет полным ходом! (-20% шанс успеха)", "chance_penalty": 0.20},
+            {"text": "⚠️ Ящик слишком тяжелый! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Пришлось оплатить экспресс-доставку.", "currency_penalty": 225},
+            {"text": "⚠️ Кто-то заказал неожиданную проверку! (-20% шанс успеха)", "chance_penalty": 0.20},
+            {"text": "⚠️ Тележка пищит колесом! (-10% шанс успеха)", "chance_penalty": 0.10},
+            {"text": "⚠️ Пришлось подкупить кухонный персонал.","currency_penalty": 300}
         ]
     },
     {
-        "name": "Food Cart Escape",
-        "attempt_text": "🍽️ {user} attempts to hide in the kitchen's food delivery cart...",
-        "success_text": "🍽️ Buried under a mountain of mystery meat, {user} was wheeled right out to the delivery truck. The meat was terrible, but freedom tastes sweet!",
-        "fail_text": "🍽️ Return to sender! {user} forgot to put enough stamps on themselves. The postal service has strict policies about shipping prisoners.",
-        "base_chance": 0.35,
-        "events": [
-            {"text": "⭐ It's holiday rush season! (+20% success chance)", "chance_bonus": 0.20},
-            {"text": "⭐ You found a perfect-sized box! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ You discovered undelivered {currency} money orders!", "currency_bonus": 275},
-            {"text": "⭐ Health inspector visit - everyone's distracted! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ The chef is having a meltdown! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ Found tips from the cooking class!", "currency_bonus": 350},
-            {"text": "⚠️ Package inspection in progress! (-20% success chance)", "chance_penalty": 0.20},
-            {"text": "⚠️ The box is too heavy! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Had to pay for express shipping.", "currency_penalty": 225},
-            {"text": "⚠️ Someone ordered a surprise inspection! (-20% success chance)", "chance_penalty": 0.20},
-            {"text": "⚠️ The food cart has a squeaky wheel! (-10% success chance)", "chance_penalty": 0.10},
-            {"text": "⚠️ Had to bribe the kitchen staff.", "currency_penalty": 300}
+    "name": "Побег в прачечной",
+    "attempt_text": "👕 {user} пытается выбраться вместе с грузовиком службы стирки грязного белья...",
+    "success_text": "👕 Сложенный между свежими простынями, {user} наслаждался комфортной поездкой к свободе! Служба стирки тюрьмы с одно-звездочным рейтингом только что потеряла своего лучшего клиента.",
+    "fail_text": "👕 {user} был обнаружен, когда не смог сдержать чихание. Оказалось, что прятаться в грязном белье - не лучшая идея.",
+    "base_chance": 0.35,
+    "events": [
+           {"text": "⭐️ Белье сегодня особенно мягкое! (+15% шанс успеха)", "chance_bonus": 0.15},
+           {"text": "⭐️ Сегодня особенно вонючий день - охранники не посмотрят! (+10% шанс успеха)", "chance_bonus": 0.10},
+           {"text": "⭐️ Вы нашли ценности в мусоре!", "currency_bonus": 225},
+           {"text": "⭐️ Статическое электричество делает вас невидимым! (+20% шанс успеха)", "chance_bonus": 0.20},
+           {"text": "⭐️ Нашел счастливый носок! (+5% шанс успеха)", "chance_bonus": 0.05},
+           {"text": "⭐️ Обнаружил деньги в сушилке!", "currency_bonus": 275},
+           {"text": "⚠️ День проверки служебной собакой! (-15% шанс успеха)", "chance_penalty": 0.15},
+           {"text": "⚠️ Контейнер имеет дыры! (-10% шанс успеха)", "chance_penalty": 0.10},
+           {"text": "⚠️ Пришлось купить освежители воздуха.", "currency_penalty": 175},
+           {"text": "⚠️ Стиральная машина протекает! (-15% шанс успеха)", "chance_penalty": 0.15},
+           {"text": "⚠️ У вас аллергия на стиральный порошок средство! (-10% шанс успеха)", "chance_penalty": 0.10},
+           {"text": "⚠️ Пришлось заплатить за премиальный смягчитель ткани.", "currency_penalty": 225}
         ]
     },
     {
-        "name": "Laundry Escape",
-        "attempt_text": "👕 {user} tries to sneak out with the laundry truck...",
-        "success_text": "👕 Folded between fresh sheets, {user} enjoyed a comfortable ride to freedom! The prison's 1-star laundry service just lost its best customer.",
-        "fail_text": "👕 {user} was found when they couldn't hold in a sneeze. Turns out hiding in old pepper wasn't the best idea.",
-        "base_chance": 0.35,
-        "events": [
-            {"text": "⭐ The laundry is extra fluffy today! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ It's extra stinky today - guards won't look! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ You found valuables in the trash!", "currency_bonus": 225},
-            {"text": "⭐ Static electricity makes you invisible! (+20% success chance)", "chance_bonus": 0.20},
-            {"text": "⭐ Found a lucky sock! (+5% success chance)", "chance_bonus": 0.05},
-            {"text": "⭐ Discovered money in the dryer!", "currency_bonus": 275},
-            {"text": "⚠️ Guard dog inspection day! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ The dumpster has holes in it! (-10% success chance)", "chance_penalty": 0.10},
-            {"text": "⚠️ Had to buy air fresheners.", "currency_penalty": 175},
-            {"text": "⚠️ The washing machine is leaking! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ You're allergic to the detergent! (-10% success chance)", "chance_penalty": 0.10},
-            {"text": "⚠️ Had to pay for premium fabric softener.", "currency_penalty": 225}
+    "name": "Замена посетителя",
+    "attempt_text": "🎭 {user} пытается поменяться местами с посетителем...",
+    "success_text": "🎭 Идеальное преступление! Двойной кузен {user} вошел, а {user} вышел. Семейные встречи будут неловкими.",
+    "fail_text": "🎭 Оказывается, ваш 'идентичный' кузен был вашей полной противоположностью. Охранники не могли перестать смеяться, когда тащили вас обратно.",
+    "base_chance": 0.35,
+    "events": [
+           {"text": "⭐️ Ваш кузен - мастер маскировки! (+20% шанс успеха)", "chance_bonus": 0.20},
+           {"text": "⭐️ Комната для посетителей особенно многолюдна! (+10% шанс успеха)", "chance_bonus": 0.10},
+           {"text": "⭐️ Ваш кузен дал вам немного денег!", "currency_bonus": 300},
+           {"text": "⭐️ Сегодня день близнецов в тюрьме! (+25% шанс успеха)", "chance_bonus": 0.25},
+           {"text": "⭐️ Ваши навыки макияжа улучшились! (+10% шанс успеха)", "chance_bonus": 0.10},
+           {"text": "⭐️ Нашел деньги в шкафчике посетителя!", "currency_bonus": 400},
+           {"text": "⚠️ Охранник проводит двойную проверку удостоверений личности! (-20% шанс успеха)", "chance_penalty": 0.20},
+           {"text": "⚠️ У вашего кузена характерная походка! (-15% шанс успеха)", "chance_penalty": 0.15},
+           {"text": "⚠️ Пришлось купить подходящую одежду.", "currency_penalty": 250},
+           {"text": "⚠️ Установлены новые биометрические сканеры! (-25% шанс успеха)", "chance_penalty": 0.25},
+           {"text": "⚠️ Вы забыли предысторию посетителя! (-15% шанс успеха)", "chance_penalty": 0.15},
+           {"text": "⚠️ Пришлось купить косметику премиум-класса для маскировки.", "currency_penalty": 350}
         ]
     },
     {
-        "name": "Visitor Swap",
-        "attempt_text": "🎭 {user} attempts to switch places with a visitor...",
-        "success_text": "🎭 The perfect crime! {user}'s identical twin cousin twice removed walked in, and {user} walked out. Family reunions will be awkward though.",
-        "fail_text": "🎭 Turns out your 'identical' cousin was actually your complete opposite. The guards couldn't stop laughing as they dragged you back.",
+        "name": "Спасение вертолетом",
+        "attempt_text": "🚁 {user} сигнализирует своему сообщнику на вертолете...",
+        "success_text": "🚁 В стиле боевика! {user} схватил веревочную лестницу и умчался прочь, пока охранники стояли в изумлении. Кажется, кто-то смотрел слишком много фильмов!",
+        "fail_text": "🚁 Кульминация сюжета: оказалось, что это полицейский вертолет. {user} только что появился в 'Самых неловких побегах из тюрьмы мира'.",
         "base_chance": 0.35,
         "events": [
-            {"text": "⭐ Your cousin is a master of disguise! (+20% success chance)", "chance_bonus": 0.20},
-            {"text": "⭐ The visiting room is extra crowded! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ Your cousin slipped you some cash!", "currency_bonus": 300},
-            {"text": "⭐ It's twins day at the prison! (+25% success chance)", "chance_bonus": 0.25},
-            {"text": "⭐ Your makeup skills improved! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ Found money in the visitor's locker!", "currency_bonus": 400},
-            {"text": "⚠️ The guard is doing double ID checks! (-20% success chance)", "chance_penalty": 0.20},
-            {"text": "⚠️ Your cousin has a distinctive walk! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Had to buy matching clothes.", "currency_penalty": 250},
-            {"text": "⚠️ New biometric scanners installed! (-25% success chance)", "chance_penalty": 0.25},
-            {"text": "⚠️ You forgot your visitor's backstory! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Had to buy premium disguise materials.", "currency_penalty": 350}
+            {"text": "⭐️ Ваш пилот - бывший дублер-каскадер! (+25% шанс успеха)", "chance_bonus": 0.25},
+            {"text": "⭐️ Идеальные погодные условия! (+15% шанс успеха)", "chance_bonus": 0.15},
+            {"text": "⭐️ Вы схватили коробку с мелкими деньгами тюрьмы!", "currency_bonus": 400},
+            { "text": "⭐️ Охранники смотрят авиашоу! (+20% шанс успеха)", "chance_bonus": 0.20},
+            {"text": "⭐️ Ваш пилот имеет опыт работы в играх! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Нашел экстренный фонд начальника тюрьмы!", "currency_bonus": 600},
+            {"text": "⚠️ Активирована противосамолетная подсветка! (-25% шанс успеха)", "chance_penalty": 0.25},
+            {"text": "⚠️ Сегодня сильный ветер! (-20% шанс успеха)", "chance_penalty": 0.20},
+            {"text": "⚠️ Пришлось оплатить расходы пилота на топливо.", "currency_penalty": 200},
+            {"text": "⚠️ Тюрьма установила противовоздушную оборону! (-30% шанс успеха)", "chance_penalty": 0.30},
+            {"text": "⚠️ Наступила морская болезнь! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Пришлось оплатить техническое обслуживание вертолета.", "currency_penalty": 450}
         ]
     },
     {
-        "name": "Helicopter Rescue",
-        "attempt_text": "🚁 {user} signals their accomplice in a helicopter...",
-        "success_text": "🚁 Action movie style! {user} grabbed the rope ladder and soared away while the guards stood in awe. Someone's been watching too many movies!",
-        "fail_text": "🚁 Plot twist: It was actually a police helicopter. {user} just got featured on 'World's Most Embarrassing Prison Breaks'.",
+        "name": "Побег через драматический кружок",
+        "attempt_text": "🎭 {user} использует представление драматического кружка в качестве прикрытия...",
+        "success_text": "🎭 Оскароносная игра! {user} сыграл свою роль настолько хорошо, что убедил всех, что он всего лишь актер, играющий заключенного. Отзывы были великолепными!",
+        "fail_text": "🎭 {user} забыл свои реплики и импровизировал настоящий побег. Зрители подумали, что это часть шоу, и устроили стоячую овацию, когда его вытащили со сцены.",
         "base_chance": 0.35,
         "events": [
-            {"text": "⭐ Your pilot is an ex-stunt double! (+25% success chance)", "chance_bonus": 0.25},
-            {"text": "⭐ Perfect weather conditions! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ You grabbed the prison's petty cash box!", "currency_bonus": 400},
-            {"text": "⭐ The guards are watching an air show! (+20% success chance)", "chance_bonus": 0.20},
-            {"text": "⭐ Your pilot has gaming experience! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ Found the warden's emergency fund!", "currency_bonus": 600},
-            {"text": "⚠️ Anti-aircraft spotlight activated! (-25% success chance)", "chance_penalty": 0.25},
-            {"text": "⚠️ High winds today! (-20% success chance)", "chance_penalty": 0.20},
-            {"text": "⚠️ Had to pay the pilot's fuel costs.", "currency_penalty": 200},
-            {"text": "⚠️ The prison installed anti-air defenses! (-30% success chance)", "chance_penalty": 0.30},
-            {"text": "⚠️ Motion sickness kicks in! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Had to pay for helicopter maintenance.", "currency_penalty": 450}
+            {"text": "⭐️ Вы снимаетесь в фильме 'Великий побег'! (+20% шанс успеха)", "chance_bonus": 0.20},
+            {"text": "⭐️ Аудитория полностью увлечена! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Вы нашли деньги в коробке реквизита!", "currency_bonus": 250},
+            {"text": "⭐️ Разведчик Бродвея в аудитории! (+25% шанс успеха)", "chance_bonus": 0.25},
+            {"text": "⭐️ Свет прожекторов неисправен! (+15% шанс успеха)", "chance_bonus": 0.15},
+            {"text": "⭐️ Выиграли приз конкурса драмы!", "currency_bonus": 450},
+            {"text": "⚠️ Охранник является театральным критиком! (-20% шанс успеха)", "chance_penalty": 0.20},
+            {"text": "⚠️ Страх сцены наступает! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Пришлось подкупить менеджера сцены.", "currency_penalty": 200},
+            {"text": "⚠️ Метод актера-охранника дежурит! (-25% шанс успеха)", "chance_penalty": 0.25},
+            {"text": "⚠️ Вы в неправильном костюме! (-10% шанс успеха)", "chance_penalty": 0.10},
+            {"text": "⚠️ Пришлось заплатить за высококачественный реквизит.", "currency_penalty": 300}
         ]
     },
     {
-        "name": "Drama Club Escape",
-        "attempt_text": "🎭 {user} uses the prison drama club performance as cover...",
-        "success_text": "🎭 Oscar-worthy performance! {user} played their role so well, they convinced everyone they were just an actor playing a prisoner. The reviews were stellar!",
-        "fail_text": "🎭 {user} forgot their lines and improvised a real escape attempt. The audience thought it was part of the show and gave a standing ovation as they were dragged back.",
-        "base_chance": 0.35,
-        "events": [
-            {"text": "⭐ You're starring in 'The Great Escape'! (+20% success chance)", "chance_bonus": 0.20},
-            {"text": "⭐ The audience is completely captivated! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ You found money in the prop cash box!", "currency_bonus": 250},
-            {"text": "⭐ Broadway scout in the audience! (+25% success chance)", "chance_bonus": 0.25},
-            {"text": "⭐ The spotlight malfunctioned! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ Won the drama competition prize!", "currency_bonus": 450},
-            {"text": "⚠️ The guard is a theatre critic! (-20% success chance)", "chance_penalty": 0.20},
-            {"text": "⚠️ Stage fright kicks in! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Had to bribe the stage manager.", "currency_penalty": 200},
-            {"text": "⚠️ Method actor guard on duty! (-25% success chance)", "chance_penalty": 0.25},
-            {"text": "⚠️ You're in the wrong costume! (-10% success chance)", "chance_penalty": 0.10},
-            {"text": "⚠️ Had to pay for premium props.", "currency_penalty": 300}
+    "name": "Путаница в почтовом отделении",
+    "attempt_text": "📦 {user} пытается отправить себя почтой на свободу...",
+    "success_text": "📦 Специальная доставка! {user} успешно отправили себя на свободу с премиальной доставкой. Однозвездочный отзыв за 'некомфортную упаковку' стоил того!",
+    "fail_text": "📦 Возврат отправителю! {user} забыл наклеить достаточное количество марок на себя. У почтовой службы есть строгие правила относительно отправки заключенных.",
+    "base_chance": 0.35,
+    "events": [
+            {"text": "⭐️ Сейчас предпраздничный сезон! (+20% шанс успеха)", "chance_bonus": 0.20},
+            {"text": "⭐️ Вы нашли идеальную коробку! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Вы обнаружили неотправленные денежные переводы на сумму {currency}!", "currency_bonus": 275},
+            {"text": "⭐️ Новый временный работник не проверяет этикетки! (+20% шанс успеха)", "chance_bonus": 0.20},
+            {"text": "⭐️ Нашли пузырчатую пленку, чтобы спрятаться! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Обнаружили неправильно размещенную посылку Amazon!", "currency_bonus": 350},
+            {"text": "⚠️ Проверка пакетов идет полным ходом! (-20% шанс успеха)", "chance_penalty": 0.20},
+            {"text": "⚠️ Коробка слишком тяжелая! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Пришлось оплатить срочную доставку.", "currency_penalty": 225},
+            {"text": "⚠️ Рентгеновский аппарат только что обновлен! (-25% шанс успеха)", "chance_penalty": 0.25},
+            {"text": "⚠️ Вы не имеете права на премиальную доставку! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Пришлось оплатить ночную доставку.", "currency_penalty": 400}
         ]
     },
     {
-        "name": "Mail Room Mixup",
-        "attempt_text": "📦 {user} tries to mail themselves to freedom...",
-        "success_text": "📦 Special delivery! {user} was successfully shipped to freedom with Prime shipping. The 1-star review for 'uncomfortable packaging' was worth it!",
-        "fail_text": "📦 Return to sender! {user} forgot to put enough stamps on themselves. The postal service has strict policies about shipping prisoners.",
-        "base_chance": 0.35,
-        "events": [
-            {"text": "⭐ It's holiday rush season! (+20% success chance)", "chance_bonus": 0.20},
-            {"text": "⭐ You found a perfect-sized box! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ You discovered undelivered {currency} money orders!", "currency_bonus": 275},
-            {"text": "⭐ New temp worker doesn't check labels! (+20% success chance)", "chance_bonus": 0.20},
-            {"text": "⭐ Found bubble wrap to hide in! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ Discovered a misplaced Amazon package!", "currency_bonus": 350},
-            {"text": "⚠️ Package inspection in progress! (-20% success chance)", "chance_penalty": 0.20},
-            {"text": "⚠️ The box is too heavy! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Had to pay for express shipping.", "currency_penalty": 225},
-            {"text": "⚠️ X-ray machine just got upgraded! (-25% success chance)", "chance_penalty": 0.25},
-            {"text": "⚠️ You're not Prime eligible! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Had to pay for overnight shipping.", "currency_penalty": 400}
+    "name": "Гамбит с мусорным контейнером",
+    "attempt_text": "🗑 {user} пытается спрятаться в мусоре...",
+    "success_text": "🗑 Мусор одного человека - билет на свободу для другого! {user} выбрался наружу, пахнув гнилой рыбой, но хотя бы он свободен!",
+    "fail_text": "🗑 {user} был найден, когда не мог сдержать чихание. Оказалось, что прятаться в старом мусоре - не самая лучшая идея.",
+    "base_chance": 0.35,
+    "events": [
+            {"text": "⭐️ Водитель мусоровоза дремлет! (+15% шанс успеха)", "chance_bonus": 0.15},
+            {"text": "⭐️ Сегодня особенно вонючий день - охранники не будут проверять мусор! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Вы нашли ценные вещи в мусоре!", "currency_bonus": 225},
+            {"text": "⭐️ Это день осведомленности о переработке отходов! (+20% шанс успеха)", "chance_bonus": 0.20},
+            {"text": "⭐️ Нашли защитный костюм в мусоре! (+15% шанс успеха)", "chance_bonus": 0.15},
+            {"text": "⭐️ Обнаружили тайные сбережения уборщика!", "currency_bonus": 375},
+            {"text": "⚠️ День инспекции служебной собаки! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Контейнер имеет дыры! (-10% шанс успеха)", "chance_penalty": 0.10},
+            {"text": "⚠️ Пришлось купить освежители воздуха.", "currency_penalty": 175},
+            {"text": "⚠️ Новые протоколы управления отходами! (-20% шанс успеха)", "chance_penalty": 0.20},
+            {"text": "⚠️ Прессовочная установка неисправна! (-25% шанс успеха)", "chance_penalty": 0.25},
+            {"text": "⚠️ Пришлось подкупить сборщика мусора.", "currency_penalty": 325}
         ]
     },
     {
-        "name": "Trash Compactor Gambit",
-        "attempt_text": "🗑️ {user} attempts to sneak out with the garbage...",
-        "success_text": "🗑️ One man's trash is another man's ticket to freedom! {user} made it out smelling like week-old fish sticks, but at least they're free!",
-        "fail_text": "🗑️ {user} was found when they couldn't hold in a sneeze. Turns out hiding in old pepper wasn't the best idea.",
-        "base_chance": 0.35,
-        "events": [
-            {"text": "⭐ The garbage truck driver is napping! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ It's extra stinky today - guards won't look! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ You found valuables in the trash!", "currency_bonus": 225},
-            {"text": "⭐ It's recycling awareness day! (+20% success chance)", "chance_bonus": 0.20},
-            {"text": "⭐ Found a hazmat suit in the trash! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ Discovered the janitor's secret savings!", "currency_bonus": 375},
-            {"text": "⚠️ Guard dog inspection day! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ The dumpster has holes in it! (-10% success chance)", "chance_penalty": 0.10},
-            {"text": "⚠️ Had to buy air fresheners.", "currency_penalty": 175},
-            {"text": "⚠️ New waste management protocols! (-20% success chance)", "chance_penalty": 0.20},
-            {"text": "⚠️ The compactor is malfunctioning! (-25% success chance)", "chance_penalty": 0.25},
-            {"text": "⚠️ Had to bribe the garbage collector.", "currency_penalty": 325}
+    "name": "Побег группы тюремной музыки",
+    "attempt_text": "🎸 {user} прячется внутри басового барабана тюремной группы...",
+    "success_text": "🎸 {user} прокатился на ритме прямиком к свободе! Финальное выступление группы подозрительно облегчилось.",
+    "fail_text": "🎸 {user} испортил большое финальное выступление, чихнув во время соло на барабанах. Критики остались недовольны.",
+    "base_chance": 0.35,
+    "events": [
+            {"text": "⭐️ Группа играет особенно громко! (+15% шанс успеха)", "chance_bonus": 0.15},
+            {"text": "⭐️ Вы находитесь в заднем ряду! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Вы нашли {currency} после выступления!", "currency_bonus": 200},
+            {"text": "⭐️ Известный музыкант посещает сегодня! (+20% шанс успеха)", "chance_bonus": 0.20},
+            {"text": "⭐️ Акустика идеальна! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Нашли банку для чаевых группы!", "currency_bonus": 325},
+            {"text": "⚠️ Барабан имеет отверстие! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Охранник просит песню! (-10% шанс успеха)", "chance_penalty": 0.10},
+            {"text": "⚠️ Пришлось подкупить барабанщика.", "currency_penalty": 175},
+            {"text": "⚠️ Начальник тюрьмы - музыкальный критик! (-20% шанс успеха)", "chance_penalty": 0.20},
+            {"text": "⚠️ Вы испытываете трудности с ритмом! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Пришлось заплатить за ремонт инструментов.", "currency_penalty": 275}
         ]
     },
     {
-        "name": "Prison Band jailbreak",
-        "attempt_text": "🎸 {user} hides inside the prison band's bass drum...",
-        "success_text": "🎸 {user} rode the rhythm all the way to freedom! The band's encore performance was suspiciously lighter.",
-        "fail_text": "🎸 {user} ruined the big finale by sneezing during the drum solo. The critics were not impressed.",
+        "name": "Олимпийские игры в тюрьме",
+        "attempt_text": "🏃 {user} участвует в ежегодных спортивных соревнованиях в тюрьме...",
+        "success_text": "🏃 {user} взял золото в забеге на 100 метров... прямо мимо ворот! Рекордное выступление!",
+        "fail_text": "🏃 {user} был дисквалифицирован за бег в неправильном направлении. Судьи остались недовольны.",
         "base_chance": 0.35,
         "events": [
-            {"text": "⭐ The band is playing extra loud! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ You're in the back row! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ You found {currency} from the performance!", "currency_bonus": 200},
-            {"text": "⭐ Famous musician visiting today! (+20% success chance)", "chance_bonus": 0.20},
-            {"text": "⭐ The acoustics are perfect! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ Found the band's tip jar!", "currency_bonus": 325},
-            {"text": "⚠️ The drum has a hole! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Guard requests a song! (-10% success chance)", "chance_penalty": 0.10},
-            {"text": "⚠️ Had to bribe the drummer.", "currency_penalty": 175},
-            {"text": "⚠️ The warden is a music critic! (-20% success chance)", "chance_penalty": 0.20},
-            {"text": "⚠️ You're rhythmically challenged! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Had to pay for instrument repairs.", "currency_penalty": 275}
+            {"text": "⭐️ Вы в отличной форме! (+20% шанс успеха)", "chance_bonus": 0.20},
+            {"text": "⭐️ Толпа болеет за вас! (+15% шанс успеха)", "chance_bonus": 0.15},
+            {"text": "⭐️ Вы выиграли приз в размере {currency}!", "currency_bonus": 350},
+            {"text": "⭐️ Олимпийский разведчик присутствует! (+25% шанс успеха)", "chance_bonus": 0.25},
+            {"text": "⭐️ Энергетические закуски! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Нашли деньги из пула ставок!", "currency_bonus": 500},
+            {"text": "⚠️ Профессиональный судья наблюдает! (-20% шанс успеха)", "chance_penalty": 0.20},
+            {"text": "⚠️ Вы потянули мышцу! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Входной взнос и стоимость оборудования.", "currency_penalty": 275},
+            {"text": "⚠️ Тестирование на наркотики в процессе! (-25% шанс успеха)", "chance_penalty": 0.25},
+            {"text": "⚠️ Забыл растянуться! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Пришлось купить кроссовки премиум-класса.", "currency_penalty": 350}
         ]
     },
     {
-        "name": "Prison Olympics",
-        "attempt_text": "🏃 {user} enters the prison's annual sports competition...",
-        "success_text": "🏃 {user} took gold in the 100-meter dash... right past the gates! A record-breaking performance!",
-        "fail_text": "🏃 {user} got disqualified for running in the wrong direction. The judges were not impressed.",
+        "name": "Художественная выставка в тюрьме",
+        "attempt_text": "🎨 {user} планирует сбежать во время художественной выставки в тюрьме...",
+        "success_text": "🎨 {user} притворился современной инсталляцией искусства и был отправлен в музей! Критики назвали это 'подвижным произведением о свободе'.",
+        "fail_text": "🎨 Поза 'Статуи Свободы' {user} оказалась недостаточно убедительной. Художественные критики дали ей нулевые звезды.",
         "base_chance": 0.35,
         "events": [
-            {"text": "⭐ You're in peak condition! (+20% success chance)", "chance_bonus": 0.20},
-            {"text": "⭐ The crowd is cheering for you! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ You won the {currency} prize!", "currency_bonus": 350},
-            {"text": "⭐ Olympic scout in attendance! (+25% success chance)", "chance_bonus": 0.25},
-            {"text": "⭐ Performance enhancing snacks! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ Found the betting pool money!", "currency_bonus": 500},
-            {"text": "⚠️ Professional referee watching! (-20% success chance)", "chance_penalty": 0.20},
-            {"text": "⚠️ You pulled a muscle! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Entry fee and equipment costs.", "currency_penalty": 275},
-            {"text": "⚠️ Drug testing in progress! (-25% success chance)", "chance_penalty": 0.25},
-            {"text": "⚠️ Forgot to stretch! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Had to buy premium running shoes.", "currency_penalty": 350}
+            {"text": "⭐️ Ваше искусство заняло первое место! (+15% шанс успеха)", "chance_bonus": 0.15},
+            {"text": "⭐️ Галерея заполнена людьми! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Кто-то купил ваше произведение искусства!", "currency_bonus": 275},
+            {"text": "⭐️ Знаменитый коллекционер произведений искусства посещает выставку! (+25% шанс успеха)", "chance_bonus": 0.25},
+            {"text": "⭐️ Выставка абстрактного искусства - идеальное прикрытие! (+15% шанс успеха)", "chance_bonus": 0.15},
+            {"text": "⭐️ Выиграл премию зрительских симпатий!", "currency_bonus": 450},
+            {"text": "⚠️ Куратор подозревает что-то неладное! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Краска еще влажная! (-10% шанс успеха)", "chance_penalty": 0.10},
+            {"text": "⚠️ Пришлось купить художественные принадлежности.", "currency_penalty": 225},
+            {"text": "⚠️ На месте аутентификатор искусства! (-25% шанс успеха)", "chance_penalty": 0.25},
+            {"text": "⚠️ Ваше шедевр смазано! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Пришлось купить дорогие художественные материалы.", "currency_penalty": 375}
         ]
     },
     {
-        "name": "Prison Art Show",
-        "attempt_text": "🎨 {user} plans to escape during the prison art exhibition...",
-        "success_text": "🎨 {user} posed as a modern art installation and was shipped to a museum! Critics called it 'A moving piece about freedom.'",
-        "fail_text": "🎨 {user}'s 'Statue of Liberty' pose wasn't convincing enough. The art critics gave it zero stars.",
+        "name": "Кулинарное шоу в тюрьме",
+        "attempt_text": "👨‍🍳 {user} принимает участие в кулинарном конкурсе в тюрьме...",
+        "success_text": "👨‍🍳 Суфле {user} было настолько хорошим, что его немедленно взяли на работу в ресторан с пятью звездами... снаружи!",
+        "fail_text": "👨‍🍳 План побега {user} провалился, как и его неудавшееся суфле. Вернитесь к обязанностям на кухне.",
         "base_chance": 0.35,
         "events": [
-            {"text": "⭐ Your art got first place! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ The gallery is packed! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ Someone bought your artwork!", "currency_bonus": 275},
-            {"text": "⭐ Famous art collector visiting! (+25% success chance)", "chance_bonus": 0.25},
-            {"text": "⭐ Abstract art exhibition - perfect cover! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ Won the People's Choice Award!", "currency_bonus": 450},
-            {"text": "⚠️ The curator is suspicious! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Paint is still wet! (-10% success chance)", "chance_penalty": 0.10},
-            {"text": "⚠️ Had to buy art supplies.", "currency_penalty": 225},
-            {"text": "⚠️ Art authenticator on site! (-25% success chance)", "chance_penalty": 0.25},
-            {"text": "⚠️ Your masterpiece is smudged! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Had to buy premium art materials.", "currency_penalty": 375}
-        ]
-    },
-    {
-        "name": "Prison Cooking Show",
-        "attempt_text": "👨‍🍳 {user} participates in the prison's cooking competition...",
-        "success_text": "👨‍🍳 {user}'s soufflé was so good, they were immediately hired by a 5-star restaurant... on the outside!",
-        "fail_text": "👨‍🍳 {user}'s escape plan fell flat like their failed soufflé. Back to the kitchen duty.",
-        "base_chance": 0.35,
-        "events": [
-            {"text": "⭐ Your dish impressed Gordon Ramsay! (+20% success chance)", "chance_bonus": 0.20},
-            {"text": "⭐ Kitchen is in chaos! (+15% success chance)", "chance_bonus": 0.15},
-            {"text": "⭐ Won the {currency} prize!", "currency_bonus": 300},
-            {"text": "⭐ Celebrity chef guest judge! (+25% success chance)", "chance_bonus": 0.25},
-            {"text": "⭐ Found the secret recipe book! (+10% success chance)", "chance_bonus": 0.10},
-            {"text": "⭐ Catering contract opportunity!", "currency_bonus": 550},
-            {"text": "⚠️ Food critic is watching! (-20% success chance)", "chance_penalty": 0.20},
-            {"text": "⚠️ Kitchen fire alert! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Had to buy premium ingredients.", "currency_penalty": 250},
-            {"text": "⚠️ Health inspector surprise visit! (-25% success chance)", "chance_penalty": 0.25},
-            {"text": "⚠️ Your sauce is too bland! (-15% success chance)", "chance_penalty": 0.15},
-            {"text": "⚠️ Had to buy truffle ingredients.", "currency_penalty": 400}
+            {"text": "⭐️ Ваше блюдо впечатлило Гордона Рамзи! (+20% шанс успеха)", "chance_bonus": 0.20},
+            {"text": "⭐️ На кухне царит хаос! (+15% шанс успеха)", "chance_bonus": 0.15},
+            {"text": "⭐️ Выиграл приз в размере {currency}!", "currency_bonus": 300},
+            {"text": "⭐️ Знаменитый шеф-повар приглашен в качестве судьи! (+25% шанс успеха)", "chance_bonus": 0.25},
+            {"text": "⭐️ Нашли секретную книгу рецептов! (+10% шанс успеха)", "chance_bonus": 0.10},
+            {"text": "⭐️ Возможность заключения контракта на кейтеринг!", "currency_bonus": 550},
+            {"text": "⚠️ Кулинарный критик следит за вами! (-20% шанс успеха)", "chance_penalty": 0.20},
+            {"text": "⚠️ Сигнал пожарной тревоги на кухне! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Пришлось купить ингредиенты премиум-класса.", "currency_penalty": 250},
+            {"text": "⚠️ Неожиданный визит санитарного инспектора! (-25% шанс успеха)", "chance_penalty": 0.25},
+            {"text": "⚠️ Ваш соус слишком пресный! (-15% шанс успеха)", "chance_penalty": 0.15},
+            {"text": "⚠️ Пришлось купить трюфельные ингредиенты.", "currency_penalty": 400}
         ]
     }
 ]
+        
+ 
