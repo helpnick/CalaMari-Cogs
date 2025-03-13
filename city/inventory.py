@@ -442,7 +442,7 @@ class InventoryView(discord.ui.View):
             if item["type"] == "perk":
                 if item_id not in member_data.get("purchased_perks", []):
                     await interaction.response.send_message(
-                        "❌ You no longer have this perk!",
+                        "❌ У вас больше нет этого перка!",
                         ephemeral=True
                     )
                     return
