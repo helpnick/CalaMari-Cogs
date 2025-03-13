@@ -39,7 +39,7 @@ class CrimeCommands:
             
             # Get jail status
             jail_remaining = await self.get_jail_time_remaining(ctx.author)
-            status = "⛓️ In jail" if jail_remaining > 0 else "✅ Free"
+            status = "⛓️ In jail" if jail_remaining > 0 else "✅ Свободен"
             
             # Get streak info
             streak = member_data.get("current_streak", 0)
