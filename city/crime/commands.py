@@ -860,7 +860,7 @@ class CrimeCommands:
         # Update crime options with defaults
         await self.config.guild(ctx.guild).crime_options.set(CRIME_TYPES.copy())
         
-        await ctx.send("✅ Crime settings have been reloaded from defaults!")
+        await ctx.send("✅ Настройки преступления были загружены из настроек по умолчанию!")
 
     @crime_set.group(name="global")
     async def crime_set_global(self, ctx: commands.Context):
@@ -986,11 +986,11 @@ class CrimeCommands:
                             channel = member.guild.get_channel(channel_id)
                             
                         if channel:
-                            await channel.send(f"🔔 {member.mention} Your jail sentence is over! You're now free to commit crimes again.")
+                            await channel.send(f"🔔 {member.mention} Ваш тюремный срок закончился! Теперь вы снова можете совершать преступления.")
                             return
                     
                     # Fallback to DM if channel not found or not stored
-                    await member.send(f"🔔 Your jail sentence is over! You're now free to commit crimes again.")
+                    await member.send(f"🔔 Ваш тюремный срок закончился! Теперь вы снова можете совершать преступления.")
             except (discord.Forbidden, discord.HTTPException):
                 pass  # Ignore if we can't send the message
 
@@ -1008,7 +1008,7 @@ class CrimeCommands:
         """
         try:
             if minutes <= 0:
-                await ctx.send("❌ Jail time must be positive!")
+                await ctx.send("❌ Тюремный срок должен быть положительным!")
                 return
 
             # Convert minutes to seconds
@@ -1034,12 +1034,12 @@ class CrimeCommands:
                 sentence_text += " (Reduced by 20%)"
                 
             embed.add_field(
-                name="⏰ Sentence Duration",
+                name="⏰ Продолжительность приговора",
                 value=sentence_text,
                 inline=True
             )
             embed.add_field(
-                name="📅 Release Time",
+                name="📅 Время выхода",
                 value=f"<t:{int(time.time() + jail_time)}:R>",
                 inline=True
             )
@@ -1051,10 +1051,10 @@ class CrimeCommands:
 
     @crime.command(name="blackmarket")
     async def crime_blackmarket(self, ctx: commands.Context):
-        """View the black market shop.
-        
-        The black market offers special items and perks that can help with your criminal activities.
-        Items purchased here will appear in your inventory (!city inventory).
+        """Ознакомьтесь с «Черным рынком».
+
+        На черном рынке продаются особые предметы и привилегии, которые могут помочь в вашей преступной деятельности.
+        Купленные здесь предметы появятся в вашем инвентаре (!city inventory).
         """
         from .blackmarket import display_blackmarket
         await display_blackmarket(self, ctx)
@@ -1076,48 +1076,48 @@ class CrimeCommands:
     @commands.guild_only()
     @commands.admin_or_permissions(administrator=True)
     async def add_scenario(self, ctx: commands.Context):
-        """Add a custom random scenario to the crime pool.
+        """Добавьте пользовательский случайный сценарий в пул преступлений.
         
-        This will guide you through creating a custom scenario by asking for:
-        - Scenario name
-        - Risk level (low, medium, high)
-        - Attempt text
-        - Success text (use {amount} and {currency} placeholders)
-        - Fail text
-        
-        Custom scenarios are saved per server and persist through bot restarts.
+          Это поможет вам создать пользовательский сценарий, указав его:
+        - Название сценария
+        - Уровень риска (низкий, средний, высокий)
+        - Текст попытки
+        - Текст успеха (используйте {amount} и {currency})
+        - Текст неудачи
+    
+         Пользовательские сценарии сохраняются для каждого сервера и сохраняются при перезапуске бота.
         """
         # Start scenario creation process
         await ctx.send("Let's create a new random scenario! I'll ask you for each piece of information.")
         
         try:
             # Get scenario name
-            await ctx.send("What would you like to name this scenario? (e.g. cookie_heist)")
+            await ctx.send("Как бы вы хотели назвать этот сценарий? (Например, взлом_жопы)")
             msg = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel, timeout=30)
             name = msg.content.lower()
             
             # Get risk level
-            await ctx.send("What risk level should this be? (low, medium, or high)")
+            await ctx.send("Каким должен быть уровень риска? (low, medium, или high)")
             while True:
                 msg = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel, timeout=30)
                 risk = msg.content.lower()
                 if risk not in ["low", "medium", "high"]:
-                    await ctx.send("Please enter either 'low', 'medium', or 'high'.")
+                    await ctx.send("Пожалуйста, введите либо 'low', 'medium', или 'high'.")
                 else:
                     break
             
             # Get attempt text
-            await ctx.send("Enter the attempt text (use {user} for the user's mention):")
+            await ctx.send("Введите текст попытки (используйте {user} для упоминания пользователя):")
             msg = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel, timeout=60)
             attempt_text = msg.content
             
             # Get success text
-            await ctx.send("Enter the success text (use {user} for the user's mention, {amount} for the reward amount, and {currency} for the currency name):")
+            await ctx.send("Введите текст успеха (используйте {user} для упоминания пользователя, {amount} для суммы вознаграждения и {currency} для названия валюты):")
             msg = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel, timeout=60)
             success_text = msg.content
             
             # Get fail text
-            await ctx.send("Enter the fail text (use {user} for the user's mention, {fine} for the fine amount, and {currency} for the currency name):")
+            await ctx.send("Введите текст отказа (используйте {user} для упоминания пользователя, {fine} для суммы штрафа и {currency} для названия валюты):")
             msg = await self.bot.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel, timeout=60)
             fail_text = msg.content
             
@@ -1161,7 +1161,7 @@ class CrimeCommands:
             
             # Send confirmation
             embed = discord.Embed(
-                title="✅ Custom Scenario Added!",
+                title="✅ Добавлен пользовательский сценарий!",
                 description=f"Your scenario '{name}' has been added to this server's random crime pool.",
                 color=discord.Color.green()
             )
@@ -1172,7 +1172,7 @@ class CrimeCommands:
             await ctx.send(embed=embed)
             
         except asyncio.TimeoutError:
-            await ctx.send("❌ Scenario creation timed out. Please try again.")
+            await ctx.send("❌ Создание сценария завершилось по таймеру. Пожалуйста, попробуйте еще раз.")
 
     @crime_set_scenarios.command(name="list")
     @commands.guild_only()
@@ -1187,7 +1187,7 @@ class CrimeCommands:
         
         # Create embed to display scenarios
         embed = discord.Embed(
-            title="📜 Custom Random Scenarios",
+            title="📜 Пользовательские случайные сценарии",
             description=f"This server has {len(custom_scenarios)} custom scenarios:",
             color=await ctx.embed_color()
         )
@@ -1227,7 +1227,7 @@ class CrimeCommands:
             for i, scenario in enumerate(scenarios):
                 if scenario["name"].lower() == scenario_name.lower():
                     removed = scenarios.pop(i)
-                    await ctx.send(f"✅ Removed custom scenario: {removed['name']}")
+                    await ctx.send(f"✅ Удален пользовательский сценарий: {removed['name']}")
                     return
             
-            await ctx.send("❌ No custom scenario found with that name.")
+            await ctx.send("❌ Не найдено ни одного пользовательского сценария с таким именем.")
